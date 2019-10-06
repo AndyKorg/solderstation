@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data name="BigDigit" type="font">
+    <family>Arial Black</family>
+    <size>20</size>
+    <ascent>23</ascent>
+    <descent>2</descent>
+    <style>Обычный</style>
+    <widthType>monospaced</widthType>
+    <antialiasing>false</antialiasing>
+    <foreground>ff000000</foreground>
+    <background>ffffffff</background>
+    <multiplicityWidth>1</multiplicityWidth>
+    <multiplicityHeight>1</multiplicityHeight>
+    <string>./0123456789</string>
+    <converted>D:/googleDrive/Projects/solderstation/avr/solderstatin/FontBIG.c</converted>
+    <chars>
+        <char code="002e" character=".">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAJklEQVQokWP8////fwYyABM5mkY1jmpkYEEXYGRkROHjSpFDyI8AwvcHHHS9xGUAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="002f" character="/">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAPElEQVQokb2PwREAIAzCwP13xgWk7Wktb3IBShJMSAIATpXloCwWjGx/jLNg9q/feAVWZvYaZ8HqvyfjBsn9ExqUNF+YAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0030" character="0">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAUUlEQVQoke2SUQ4AMARDy/3v3H0t2VB2gPWTPhVhJIlDZoaoYAEA+ASpunfNDnbhK9dLYJy2oQifPpk46YMTqM7ePYVMnH7Wq+KLrkQFk0y9BSe6IhoSBac3AAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0031" character="1">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAARElEQVQokWP8////fwYsgJGREYWProwJmyZiAFaN6LZhAyykasCwkRRNKBqRAY7wQgEoTiVGA4aNpGhC0UgqGNVIC40AkgMQHno6KNYAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0032" character="2">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAXElEQVQokZ3SQRLAIAgDQGD8/5fppYfUJoDmzAIjemamQdzdWLYyCwQKsYYh6lq8WDdcS21xNBGz9gnTlBOrx5KQIdyMwg5ROEE/OEUfeILM3nOoVM1CFXS5/jkP1cQfMoj6VzYAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0033" character="3">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAYklEQVQokZWSQQ4AMQgC1fj/L9tTE+NCcTk24pCiV1VZk7sb0hiz6AZmQgvjRXmZU8ViS3MObhV6BAtGNcMRe7I1kdahBOtghEn51DG3bX4ZEjcHEYygTvBXjx2Q81H1d3UAhygoLUH5lnkAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0034" character="4">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAV0lEQVQokZ3SQQrAMAhE0T+h97+yXTWY1kTr7AI+hogyM2MTScvbj44qeieEGQphBX1gFYWNTw47W6Fvy9CEfxHA6CAAAfVpV7BdTpY2vE7/at1qlja8AfZfHR0NOGLiAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0035" character="5">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAYklEQVQoka1S0RKAMAiSrv//ZXppOzND243XCQgTJGk3AJiCG7VDTgosE8+vB7+WdKzytR2jUNygnTEK/SrHkycxrkJSFvTIWDX5IlZFZEgzdr4G41Y7w1tudZYz1DLnLPMF84wpGWRytn4AAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0036" character="6">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAXUlEQVQoka2SQRYAIQhC1df9r0xbx4FiEcv0B1oJANGUmcE02qIciNVKFW5wqSYAv3hdi7l1QMHLicUuoFHZvHI5jp4sh4In4OpogdPB+Qz2c0yDYoeOPjMqmG14A1r3MRdCSasXAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0037" character="7">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAUElEQVQokb2SwQ4AIAhCsfX/v0zXppnUVpx9gg4jSTODKpIAgCYTTtdgn+29/AnznOzol6dg9bAluItYOlYqwexxAVTL8CZqFjOAJ53939UBWk4ZGYKjgEwAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0038" character="8">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAYElEQVQokb2SwQ7AIAhDC/H/f7k7ubAOBgezJl6EB1g0kkSQmUElKQCA9QVoLBbwDqqmWVlCrFwV9VGrk6BtVyfvfJmjlx30ALuOGk/XQfI+Ffy/q+kHmDjsQO/o1pF1XCgVLxgEh3UQAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0039" character="9">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAA4AAAAPCAYAAADUFP50AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAYklEQVQoka2RQQ4AIQgDB+P/v9w9bYIssJrIETu0qSZJuDEz4gQJAMMDGVQdG4luCx7ZUlIab9sxwt5gO+qRY1UWwDwFFse/IkqwgruDS9QT5wn5P3b7j+M7V8uJmrac7u0BabUuHMKHADAAAAAASUVORK5CYII=</picture>
+        </char>
+    </chars>
+</data>
