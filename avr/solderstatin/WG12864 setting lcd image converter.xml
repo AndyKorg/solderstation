@@ -118,6 +118,6 @@ do {
   </font>
   <templates>
     <images>:/templates/image_convert</images>
-    <fonts>F:/Develop/avr/mh-et epaper/lcd-image-converter/templates/font_convert/fontMh-Et.tmpl</fonts>
+    <fonts>F:/Develop/avr/mh-et epaper/lcd-image-converter/templates/font_convert/wg12864.tmpl</fonts>
   </templates>
 </preset>

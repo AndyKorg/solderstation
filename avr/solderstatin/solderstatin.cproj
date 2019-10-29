@@ -149,10 +149,31 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="font24.c">
+    <Compile Include="avrlibdefs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="font39pixel_h_digit.c">
+    <Compile Include="avrlibtypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="display.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="display.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EERTOS.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EERTOS.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EERTOSHAL.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EERTOSHAL.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FontBIG.c">
@@ -164,7 +185,31 @@
     <Compile Include="FontSuperBIG.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="HAL.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="keyboard.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="keyboard.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="power.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="power.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="smallFont.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="solder_fan.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="solder_fan.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="wg12864b.c">

@@ -72,10 +72,9 @@ typedef struct _tFont
   const enum FontWidthType FontType;
 } sFONT;
 
-//extern sFONT Font24;
-//extern sFONT Fontfont39pixel_h_digit;
 extern sFONT FontBigDigit;
 extern sFONT FontSuperBigDigit;
+extern sFONT FontSmall;
 
 #ifdef __cplusplus
 }

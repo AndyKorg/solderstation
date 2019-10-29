@@ -8,40 +8,42 @@
 #include <avr/pgmspace.h>
 
 #include <util/delay.h>
+#include "avrlibtypes.h"
+#include "HAL.h"
 #include "wg12864b.h"
 
 #define SCREEN_ON			0b00111111
 #define SCREEN_OFF			0b00111110
 #define Y_SET				0b10111000
 #define Y_MASK				0b00000111
-#define Y_MAX_PAGE			8
+#define HEIGHT_BAND			8				//Size band in bit
+#define Y_MAX_BAND			8				//Count bands in dispaly
 #define X_SET				0b01000000
 #define X_MASK				0b00111111
 #define X_MAX_PAGE			64
 
 #define PAGE_START			0b11000000
 
-#define PinOutputMode(ddr, port, pin)	do {ddr |= (1<<pin); port &= ~(1<<pin);} while (0)
-#define DataPortOutMode()		do {WG12864_DATA_DDR = 0xff; WG12864_DATA_IN = 0;}while(0)
-#define DataPortInputMode()		do {WG12864_DATA_DDR = 0; WG12864_DATA_IN = 0xff;}while(0)
-#define	COMMAND_MODE()			do {WG12864_PIN_DI_PORT &= ~(1<<WG12864_PIN_DI); WG12864_PIN_RW_PORT &= ~(1<<WG12864_PIN_RW); _delay_us(2);} while (0)
-#define	DATA_WRITE_MODE()		do {WG12864_PIN_DI_PORT |= (1<<WG12864_PIN_DI); WG12864_PIN_RW_PORT &= ~(1<<WG12864_PIN_RW); _delay_us(2);} while (0)
-#define	DATA_READ_MODE()		do {WG12864_PIN_DI_PORT |= (1<<WG12864_PIN_DI); WG12864_PIN_RW_PORT |= (1<<WG12864_PIN_RW); _delay_us(2);} while (0)
-#define	CLOCK_ON()				do {WG12864_PIN_E_PORT |= (1<<WG12864_PIN_E); _delay_us(2); } while (0)
-#define	CLOCK_OFF()				do {WG12864_PIN_E_PORT &= ~(1<<WG12864_PIN_E); _delay_us(2);} while (0)
+#define DataPortOutMode()		do {*DDR(&DISPLAY_DATA_OUT) = 0xff; DISPLAY_DATA_OUT = 0;}while(0)
+#define DataPortInputMode()		do {*DDR(&DISPLAY_DATA_OUT) = 0; DISPLAY_DATA_OUT = 0xff;}while(0)
+#define	COMMAND_MODE()			do {DISPLAY_PIN_DI_PORT &= ~(1<<DISPLAY_PIN_DI); DISPLAY_PIN_RW_PORT &= ~(1<<DISPLAY_PIN_RW); _delay_us(2);} while (0)
+#define	DATA_WRITE_MODE()		do {DISPLAY_PIN_DI_PORT |= (1<<DISPLAY_PIN_DI); DISPLAY_PIN_RW_PORT &= ~(1<<DISPLAY_PIN_RW); _delay_us(2);} while (0)
+#define	DATA_READ_MODE()		do {DISPLAY_PIN_DI_PORT |= (1<<DISPLAY_PIN_DI); DISPLAY_PIN_RW_PORT |= (1<<DISPLAY_PIN_RW); _delay_us(2);} while (0)
+#define	CLOCK_ON()				do {DISPLAY_PIN_E_PORT |= (1<<DISPLAY_PIN_E); _delay_us(2); } while (0)
+#define	CLOCK_OFF()				do {DISPLAY_PIN_E_PORT &= ~(1<<DISPLAY_PIN_E); _delay_us(2);} while (0)
 #define	CLOCK()					do {CLOCK_ON(); CLOCK_OFF();} while (0)
-#define	CS1_ON()				do {WG12864_PIN_CS1_PORT |= (1<<WG12864_PIN_CS1); WG12864_PIN_CS2_PORT &= ~(1<<WG12864_PIN_CS2);_delay_us(2);} while (0)
-#define	CS2_ON()				do {WG12864_PIN_CS2_PORT |= (1<<WG12864_PIN_CS2); WG12864_PIN_CS1_PORT &= ~(1<<WG12864_PIN_CS1);_delay_us(2);} while (0)
-#define	CS_BOTH_OFF()			do {WG12864_PIN_CS1_PORT |= (1<<WG12864_PIN_CS1); WG12864_PIN_CS2_PORT |= (1<<WG12864_PIN_CS2);_delay_us(2);} while (0)
-#define	CS_BOTH_ON()			do {WG12864_PIN_CS1_PORT &= ~(1<<WG12864_PIN_CS1); WG12864_PIN_CS2_PORT &= ~(1<<WG12864_PIN_CS2);_delay_us(2);} while (0)
-#define RESET_ADR()				do {WG12864_PIN_RST_PORT &= ~(1<<WG12864_PIN_RST); _delay_us(20); WG12864_PIN_RST_PORT |= (1<<WG12864_PIN_RST); _delay_us(20);} while (0)
+#define	CS1_ON()				do {DISPLAY_PIN_CS1_PORT |= (1<<DISPLAY_PIN_CS1); DISPLAY_PIN_CS2_PORT &= ~(1<<DISPLAY_PIN_CS2);_delay_us(2);} while (0)
+#define	CS2_ON()				do {DISPLAY_PIN_CS2_PORT |= (1<<DISPLAY_PIN_CS2); DISPLAY_PIN_CS1_PORT &= ~(1<<DISPLAY_PIN_CS1);_delay_us(2);} while (0)
+#define	CS_BOTH_OFF()			do {DISPLAY_PIN_CS1_PORT |= (1<<DISPLAY_PIN_CS1); DISPLAY_PIN_CS2_PORT |= (1<<DISPLAY_PIN_CS2);_delay_us(2);} while (0)
+#define	CS_BOTH_ON()			do {DISPLAY_PIN_CS1_PORT &= ~(1<<DISPLAY_PIN_CS1); DISPLAY_PIN_CS2_PORT &= ~(1<<DISPLAY_PIN_CS2);_delay_us(2);} while (0)
+#define RESET_ADR()				do {DISPLAY_PIN_RST_PORT &= ~(1<<DISPLAY_PIN_RST); _delay_us(20); DISPLAY_PIN_RST_PORT |= (1<<DISPLAY_PIN_RST); _delay_us(20);} while (0)
 #define	ScrollSet(lne)			(SCROLL_SET_MASK | (lne & SCROLL_SET_MASK))
 #define	X(x)					(X_SET | (x & X_MASK))
 #define	Y(y)					(Y_SET | (y & Y_MASK))
 
 void lcd_dat (unsigned char data)
 {
-	WG12864_DATA_OUT = data;
+	DISPLAY_DATA_OUT = data;
 	DATA_WRITE_MODE();
 	CLOCK();
 	//COMMAND_MODE();
@@ -49,7 +51,7 @@ void lcd_dat (unsigned char data)
 
 void lcd_com (unsigned char cmd)
 {
-	WG12864_DATA_OUT = cmd;
+	DISPLAY_DATA_OUT = cmd;
 	COMMAND_MODE();
 	CLOCK();
 }
@@ -58,7 +60,7 @@ void clear_screen (void)
 {
 	unsigned char x=0, y=0;
 	CS_BOTH_ON();
-	for(; y<Y_MAX_PAGE; y++){
+	for(; y<Y_MAX_BAND; y++){
 		lcd_com(Y(y));
 		for(x = 0; x<X_MAX_PAGE; x++){
 			lcd_com(X(x));
@@ -78,10 +80,10 @@ void gotoxy (const unsigned char x, const unsigned char y)
 		CS1_ON();
 		lcd_com(X_SET+(x-X_MAX_PAGE));
 	}
-	lcd_com(Y_SET+(y/Y_MAX_PAGE));
+	lcd_com(Y_SET+(y/Y_MAX_BAND));
 }
 
-void put_pixel (const unsigned char x, const unsigned char y, const unsigned char color)
+void put_pixel (const unsigned char x, const unsigned char y, const eColored color)
 {
 	unsigned char temp=0;
 
@@ -92,10 +94,10 @@ void put_pixel (const unsigned char x, const unsigned char y, const unsigned cha
 	DataPortInputMode();
 	CLOCK_ON();
 	if (color){
-		temp = WG12864_DATA_IN | (1<<(y % Y_MAX_PAGE));
+		temp = *PIN(&DISPLAY_DATA_OUT) | (1<<(y % Y_MAX_BAND));
 	}
 	else{
-		temp = WG12864_DATA_IN & (~(1<<(y % Y_MAX_PAGE)));
+		temp = *PIN(&DISPLAY_DATA_OUT) & (~(1<<(y % Y_MAX_BAND)));
 	}
 	CLOCK_OFF();
 	DataPortOutMode();
@@ -108,14 +110,13 @@ void put_pixel (const unsigned char x, const unsigned char y, const unsigned cha
 *  @brief: this draws a character on the pattern buffer but not refresh
 *          returns the x position of the end character
 */
-unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, unsigned char colored) {
+unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, const eColored colored) {
 	int i;
 	unsigned int char_offset = 0;
 	unsigned char xOffset, yOffset;
 	sPROP_SYMBOL symbol;
 
-	#define heightBand			8 //bit
-	#define countBand			(font->Height / heightBand + (font->Height % heightBand ? 1 : 0))
+	#define countBand			(font->Height / HEIGHT_BAND + (font->Height % HEIGHT_BAND ? 1 : 0))
 	#define OffsetCalc(w)		(countBand * w )
 
 	//get symbol and offset if table not full ascii table
@@ -137,11 +138,18 @@ unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFON
 		symbol.Width = font->Width;
 	}
 	
-	const unsigned char* ptr = &font->table[char_offset];
+	const unsigned char* ptr = &font->table[char_offset]; 
+	unsigned char nextCS = 0, yNew;
 
 	for(yOffset = 0; yOffset<= countBand-1; yOffset++){
-		gotoxy(x,y+(yOffset * heightBand));
+		yNew = y+(yOffset * HEIGHT_BAND);
+		gotoxy(x,yNew);
+		nextCS = 0;
 		for (xOffset = 0; xOffset < symbol.Width; xOffset++) {
+			if (((x+xOffset) >= X_MAX_PAGE) && !nextCS){
+				gotoxy((x+xOffset), yNew);
+				nextCS++;
+			}
 			lcd_dat(pgm_read_byte(ptr++));
 		}
 	}
@@ -149,15 +157,47 @@ unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFON
 	return x+symbol.Width;
 }
 
+/**
+*  @brief: this displays a string on the pattern buffer but not refresh
+*          returns the x position of the end string
+*/
+unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* text, sFONT* font, const eColored colored) {
+	const char* p_text = text;
+	unsigned int counter = 0;
+	int refcolumn = x;
+	
+	/* Send the string character by character on EPD */
+	while (*p_text != 0) {
+		/* Display one character on EPD */
+		refcolumn = drawCharAt(refcolumn, y, *p_text, font, colored);
+		/* Decrement the column position by 16 */
+		//refcolumn += font->Width;
+		/* Point on the next character */
+		p_text++;
+		counter++;
+	}
+	return refcolumn;
+}
+
+/**
+*  @brief: Returns the coordinate of the next line, given the font. 
+*          If the end of the screen is reached, an invariable coordinate is returned.
+* 
+*/
+unsigned char enterY(unsigned char y, unsigned char align, sFONT *font){
+	unsigned char newY = (y + font->Height) + (align?HEIGHT_BAND % (y+font->Height):0);
+	return (newY <= (DISPLAY_Y_MAX-font->Height))? newY : y;
+}
+
 void wg12864_init(void)
 {
 	DataPortOutMode();
-	PinOutputMode(WG12864_PIN_DI_DDR, WG12864_PIN_DI_PORT, WG12864_PIN_DI);
-	PinOutputMode(WG12864_PIN_RW_DDR, WG12864_PIN_RW_PORT, WG12864_PIN_RW);
-	PinOutputMode(WG12864_PIN_E_DDR, WG12864_PIN_E_PORT, WG12864_PIN_E);
-	PinOutputMode(WG12864_PIN_CS1_DDR, WG12864_PIN_CS1_PORT, WG12864_PIN_CS1);
-	PinOutputMode(WG12864_PIN_CS2_DDR, WG12864_PIN_CS2_PORT, WG12864_PIN_CS2);
-	PinOutputMode(WG12864_PIN_RST_DDR, WG12864_PIN_RST_PORT, WG12864_PIN_RST);
+	PinOutputMode(DISPLAY_PIN_DI_PORT, DISPLAY_PIN_DI);
+	PinOutputMode(DISPLAY_PIN_RW_PORT, DISPLAY_PIN_RW);
+	PinOutputMode(DISPLAY_PIN_E_PORT, DISPLAY_PIN_E);
+	PinOutputMode(DISPLAY_PIN_CS1_PORT, DISPLAY_PIN_CS1);
+	PinOutputMode(DISPLAY_PIN_CS2_PORT, DISPLAY_PIN_CS2);
+	PinOutputMode(DISPLAY_PIN_RST_PORT, DISPLAY_PIN_RST);
 	_delay_ms(100);
 
 	RESET_ADR();

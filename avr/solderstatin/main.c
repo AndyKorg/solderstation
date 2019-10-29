@@ -1,22 +1,40 @@
+/*
+* Таймеры:
+* 0 - свободен
+* 1 - свободен
+* 2 - планировщик
+*/
+#include <stdio.h>
 #include <avr/io.h>
-#include <util/delay.h>
-#include "wg12864b.h"
-
+#include <stdlib.h>
+#include <avr/wdt.h>
+#include "EERTOS.h"
+#include "power.h"
+#include "display.h"
+#include "keyboard.h"
+#include "solder_fan.h"
 
 int main(void)
-{ 
-
-drawCharAt(0, 0, '0', &FontBigDigit, 0);
-
-MCUCSR |= (1<<JTD);//Double!
-MCUCSR |= (1<<JTD);
-
-wg12864_init();	//Инициализация ЖКИ
-put_pixel(32,32, 1);
-drawCharAt(0, 0, '1', &FontSuperBigDigit, 0);
+{
+	wdt_enable(WDTO_1S);
+	adc_preset();//Сразу надо настроить AREF, что бы избежать длительного шунткирования внутреннего AREF
+	power_init();
 	
-while (1)
-;
+	InitRTOS();
 
-return 1;
+	MCUCSR |= (1<<JTD);//Double!
+	MCUCSR |= (1<<JTD);
+
+	display_init();
+	keyboard_init();
+	device_init();
+	
+	RunRTOS();
+	
+	while (1){
+		TaskManager();
+		wdt_reset();
+	}
+
+	return 1;
 }
