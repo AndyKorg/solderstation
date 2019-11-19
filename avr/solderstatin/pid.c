@@ -43,7 +43,7 @@ void pid_Init(int16_t p_factor, int16_t i_factor, int16_t d_factor, struct PID_D
   pid->I_Factor = i_factor;
   pid->D_Factor = d_factor;
   // Limits to avoid overflow
-  pid->maxError = MAX_INT / (pid->P_Factor + 1);
+  pid->maxError = MAX_INT/(pid->P_Factor + 1);
   pid->maxSumError = MAX_I_TERM / (pid->I_Factor + 1);
 }
 
@@ -101,7 +101,6 @@ int16_t pid_Controller(int16_t setPoint, int16_t processValue, struct PID_DATA *
   else if(ret < -MAX_INT){
     ret = -MAX_INT;
   }
-
   return((int16_t)ret);
 }
 

@@ -42,7 +42,7 @@
 
 
 #define	TaskQueueSize		20		/* Размер очереди задач диспетчера */
-#define MainTimerQueueSize	15		/* Размер очереди службы таймера */
+#define MainTimerQueueSize	20		/* Размер очереди службы таймера */
 
 extern void RunRTOS (void);
 

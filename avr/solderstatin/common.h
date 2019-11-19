@@ -29,16 +29,15 @@ typedef struct{
 	u16 need;									//Целевое значение которого необходимо достигнуть регулятору температуры
 	u16	current;								//Текущее измеренное (или вычисленное) значение
 	u16 setSelect;								//Значение в режиме STATE_SET, переписывается в need после перехода в режим STATE_ON
-	u16 maxValue;
+	u16 maxValue;								//Максимально возможное значение набираемое оператором
 	eState state;
-	//display
-	u08 xPosEndTempr;							//Позиция по x конца вывода значения темепературы
 	//keyboard
-	u16 periodRepeatMs;							//счетчик автоповтора нажатия
+	u16 periodRepeatMs;							//счетчик автоповтора нажатия. 
 	u08 periodSettingS;							//счетчик периода установки
-	u08 delayOff;								//Защита от дребезга при включении
-} sDevice;
+	u08 delayOffOn;								//Защита от дребезга при включении
+	u16	limitADC;								//Максимальное значение выключающее регулирование
+} device_t;
 
-sDevice solder, fan, fan_head;
+device_t solder, fan, fan_head;
 
 #endif /* COMMON_H_ */

@@ -1,7 +1,7 @@
 /*
 * “аймеры:
 * 0 - свободен
-* 1 - свободен
+* 1 - PWM solder and fan_head
 * 2 - планировщик
 */
 #include <stdio.h>
@@ -14,22 +14,28 @@
 #include "keyboard.h"
 #include "solder_fan.h"
 
+#include "avrlibdefs.h"
+
+#include "console.h"
+
 int main(void)
 {
 	wdt_enable(WDTO_1S);
-	adc_preset();//—разу надо настроить AREF, что бы избежать длительного шунткировани€ внутреннего AREF
-	power_init();
-	
-	InitRTOS();
-
+	adc_preset();//—разу надо настроить AREF, что бы избежать длительного шунтировани€ внутреннего AREF
 	MCUCSR |= (1<<JTD);//Double!
 	MCUCSR |= (1<<JTD);
+	power_init();
 
+	InitRTOS();
+	console_init();
+	
+	RunRTOS();
+	
 	display_init();
 	keyboard_init();
 	device_init();
-	
-	RunRTOS();
+
+	console_print("start\r");
 	
 	while (1){
 		TaskManager();

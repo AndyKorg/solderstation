@@ -137,6 +137,7 @@ void SetTimerTask(TPTR TS, u16 NewTime)
 		}
 		
 	}												// тут можно сделать return c кодом ошибки - нет свободных таймеров
+	//if (nointerrupted) 	Enable_Interrupt;	// Разрешаем прерывания
 }
 
 
