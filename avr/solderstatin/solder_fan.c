@@ -72,7 +72,7 @@ void solder_init(void){
 	solder.state = STATE_OFF;
 	solder.need = 0;
 	solder.limitADC = 800;//over 450 C//!DEBUG!
-	solder.current = 0;//!DEBUG!
+	solder.current = 0;
 }
 
 void fan_init(void){
@@ -82,8 +82,8 @@ void fan_init(void){
 	//	FanHeatOff();
 	fan.state = STATE_OFF;
 	fan.need = 0;
-	fan.current = 0;//!DEBUG!
-	fan_head.state = STATE_ON;//!DEBUG!
+	fan.current = 0;
+	fan_head.state = STATE_OFF;
 	fan_head.need = 0;
 	fan_head.limitADC = 550;//over 450 C//!DEBUG!
 }

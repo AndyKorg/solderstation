@@ -250,6 +250,6 @@ void wg12864_init(init_end fn)
 	PinOutputMode(DISPLAY_PIN_E_PORT, DISPLAY_PIN_E);
 	PinOutputMode(DISPLAY_PIN_CS1_PORT, DISPLAY_PIN_CS1);
 	PinOutputMode(DISPLAY_PIN_CS2_PORT, DISPLAY_PIN_CS2);
-	//RESET_ADR();
+	RESET_ADR();
 	SetTimerTask(_wg12864_rst, 1);
 }

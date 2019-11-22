@@ -10,7 +10,5 @@
 
 void display_init(void);
 
-//void Show(void);
-
 
 #endif /* DISPLAY_H_ */

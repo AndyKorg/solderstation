@@ -37,18 +37,7 @@ inline uint8_t itoaFlash(device_t dev, char *buf){
 	}
 	return (uint8_t) snprintf(buf, DISPLAY_MAX_BUF, "%04d", (dev.state == STATE_SET)?dev.setSelect:dev.current);
 }
-/*
-void Show(void){
-char tmp[DISPLAY_MAX_BUF];
-uint8_t xPosEndTempr;
-xPosEndTempr = drawStringAt(0, 0, itoaFlash(solder, tmp), &FontSuperBigDigit, COLORED_SHOW);
-drawStringAt(xPosEndTempr, 0, (solder.state == STATE_OFF)?" OFF":" ON  ", &FontSmall, COLORED_SHOW);
-u08 y = enterY(0, 0, &FontSuperBigDigit)+4;
-xPosEndTempr = drawStringAt(0, y, itoaFlash(fan_head, tmp), &FontSuperBigDigit, COLORED_SHOW);
-PORTB ^= (1<<PORTB0);
-SetTimerTask(Show, DISPLAY_REFRESH_MS);
-}
-*/
+
 uint8_t solderTempr(dispString_t *value);
 
 uint8_t fan_headState(dispString_t *value){
@@ -102,7 +91,6 @@ void ShowString(void){
 	}
 	if(charCount){
 		current.x = drawCharAt(current.x, current.y, current.str[currPos++], current.font, current.color);
-		//put_pixel(0,0,COLORED_SHOW);
 		charCount--;
 	}
 	SetTimerTask(ShowString, 10);

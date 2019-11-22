@@ -29,7 +29,7 @@ void clear_screen (void);
 void wg12864_init(init_end fn);
 void put_pixel (const unsigned char x, const unsigned char y, const eColored color);
 unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, eColored colored);
-unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* text, sFONT* font, eColored colored);
+unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* text, sFONT* font, eColored colored); //WARNING! Long time function
 unsigned char enterY(unsigned char y, unsigned char align, sFONT *font);
 
 #endif /* WG12864B_H_ */
