@@ -21,14 +21,15 @@ typedef enum {
 	COLORED_SHOW = 1
 } eColored;
 
-typedef void (*init_end)(void);
+typedef void (*init_end_t)(void); //Callback end initialisation
+typedef void (*symbol_draw_end_t)(void); //Callback end symbol end
 
 bool wg_is_busy(void);
 uint8_t wg_status(void);
 void clear_screen (void);
-void wg12864_init(init_end fn);
+void wg12864_init(init_end_t fn);
 void put_pixel (const unsigned char x, const unsigned char y, const eColored color);
-unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, eColored colored);
+unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, eColored colored, symbol_draw_end_t end_func);
 unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* text, sFONT* font, eColored colored); //WARNING! Long time function
 unsigned char enterY(unsigned char y, unsigned char align, sFONT *font);
 

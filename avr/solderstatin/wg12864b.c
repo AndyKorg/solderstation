@@ -47,7 +47,22 @@
 #define	X(x)					(X_SET | (x & X_MASK))
 #define	Y(y)					(Y_SET | (y & Y_MASK))
 
-static init_end ini_end_cb;
+static init_end_t ini_end_cb;
+
+typedef struct{
+	uint8_t x;
+	uint8_t y;
+	const uint8_t* ptrFont;
+	uint8_t width;
+	uint8_t countBand;
+	uint8_t xOffset;
+	uint8_t yOffset;
+	uint8_t nextCS;
+	uint8_t yNew;
+	symbol_draw_end_t draw_end_cb; //callback end draw symbol
+} drawChar_t;
+
+static drawChar_t currChar;			//functions call chain: drawCharAt -> drawCharPart -> drawCharPartX -> drawCharPart -> ... countBand ... -> draw_end_cb
 
 uint8_t wg_status(void){
 	DataPortInputMode();	//avr porti input
@@ -138,17 +153,44 @@ void put_pixel (const unsigned char x, const unsigned char y, const eColored col
 	lcd_dat(temp);
 }
 
+void drawCharPart(void);
+
+void drawCharPartX(){
+	for (currChar.xOffset = 0; currChar.xOffset < currChar.width; currChar.xOffset++) {
+		if (((currChar.x+currChar.xOffset) >= X_MAX_PAGE) && !currChar.nextCS){
+			gotoxy((currChar.x+currChar.xOffset), currChar.yNew);
+			currChar.nextCS++;
+		}
+		lcd_dat(pgm_read_byte(currChar.ptrFont++));
+	}
+	SetTimerTask(drawCharPart, 1); //continue draw
+}
+
+void drawCharPart(void){
+	if (currChar.yOffset < currChar.countBand){
+		currChar.yNew = currChar.y+(currChar.yOffset * HEIGHT_BAND);
+		gotoxy(currChar.x,currChar.yNew);
+		currChar.nextCS = 0;
+		SetTimerTask(drawCharPartX, 1); // draw part x coordinate
+		currChar.yOffset++;
+	}
+	else{
+		if (currChar.draw_end_cb){
+			SetTimerTask(currChar.draw_end_cb, 1);
+		}
+	}
+}
+
 /**
 *  @brief: this draws a character on the pattern buffer but not refresh
 *          returns the x position of the end character
 */
-unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, const eColored colored) {
+unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, const eColored colored, symbol_draw_end_t end_func) {
 	int i;
 	unsigned int char_offset = 0;
-	unsigned char xOffset, yOffset;
 	sPROP_SYMBOL symbol;
 
-	#define countBand			(font->Height / HEIGHT_BAND + (font->Height % HEIGHT_BAND ? 1 : 0))
+	uint8_t countBand =	(font->Height / HEIGHT_BAND + (font->Height % HEIGHT_BAND ? 1 : 0));
 	#define OffsetCalc(w)		(countBand * w )
 
 	//get symbol and offset if table not full ascii table
@@ -170,21 +212,14 @@ unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFON
 		symbol.Width = font->Width;
 	}
 	
-	const unsigned char* ptr = &font->table[char_offset];
-	unsigned char nextCS = 0, yNew;
-
-	for(yOffset = 0; yOffset<= countBand-1; yOffset++){
-		yNew = y+(yOffset * HEIGHT_BAND);
-		gotoxy(x,yNew);
-		nextCS = 0;
-		for (xOffset = 0; xOffset < symbol.Width; xOffset++) {
-			if (((x+xOffset) >= X_MAX_PAGE) && !nextCS){
-				gotoxy((x+xOffset), yNew);
-				nextCS++;
-			}
-			lcd_dat(pgm_read_byte(ptr++));
-		}
-	}
+	currChar.ptrFont = &font->table[char_offset];
+	currChar.x = x;
+	currChar.y = y;
+	currChar.width = symbol.Width;
+	currChar.yOffset = 0;
+	currChar.draw_end_cb = end_func;
+	currChar.countBand = countBand;
+	SetTimerTask(drawCharPart, 1);	//Start draw symbol
 
 	return x+symbol.Width;
 }
@@ -200,7 +235,7 @@ unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* 
 	/* Send the string character by character on EPD */
 	while (*p_text != 0) {
 		/* Display one character on EPD */
-		refcolumn = drawCharAt(refcolumn, y, *p_text, font, colored);
+		refcolumn = drawCharAt(refcolumn, y, *p_text, font, colored, NULL);
 		/* Decrement the column position by 16 */
 		//refcolumn += font->Width;
 		/* Point on the next character */
@@ -239,7 +274,7 @@ void _wg12864_rst(void)
 	SetTimerTask(_wg12864_init, 100);//Ждем готовности дисплея
 }
 
-void wg12864_init(init_end fn)
+void wg12864_init(init_end_t fn)
 {
 	ini_end_cb = fn;
 	PinOutputMode(DISPLAY_PIN_RST_PORT, DISPLAY_PIN_RST);
@@ -251,5 +286,6 @@ void wg12864_init(init_end fn)
 	PinOutputMode(DISPLAY_PIN_CS1_PORT, DISPLAY_PIN_CS1);
 	PinOutputMode(DISPLAY_PIN_CS2_PORT, DISPLAY_PIN_CS2);
 	RESET_ADR();
+	currChar.ptrFont = NULL;
 	SetTimerTask(_wg12864_rst, 1);
 }

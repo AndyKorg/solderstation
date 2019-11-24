@@ -90,10 +90,9 @@ void ShowString(void){
 		}
 	}
 	if(charCount){
-		current.x = drawCharAt(current.x, current.y, current.str[currPos++], current.font, current.color);
+		current.x = drawCharAt(current.x, current.y, current.str[currPos++], current.font, current.color, ShowString);
 		charCount--;
 	}
-	SetTimerTask(ShowString, 10);
 }
 
 void flashSwitch(void){
