@@ -57,9 +57,9 @@ void console_print(char *str){
 	}
 }
 
-void console_uint8(uint8_t value){
+void console_uint8(uint8_t value, uint8_t enter){
 	char tmp[4];
-	snprintf(tmp,4, "%02x", value);
+	snprintf(tmp,4, enter?"%02x\r":"%02x", value);
 	console_print(tmp);
 }
 

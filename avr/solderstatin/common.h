@@ -26,7 +26,7 @@ typedef enum {
 } eState;
 
 typedef struct{
-	u16 need;									//÷елевое значение которого необходимо достигнуть регул€тору температуры
+	u16 need;									//÷елевое значение которого необходимо достигнуть регул€тору
 	u16	current;								//“екущее измеренное (или вычисленное) значение
 	u16 setSelect;								//«начение в режиме STATE_SET, переписываетс€ в need после перехода в режим STATE_ON
 	u16 maxValue;								//ћаксимально возможное значение набираемое оператором
@@ -38,6 +38,8 @@ typedef struct{
 	u16	limitADC;								//ћаксимальное значение выключающее регулирование
 } device_t;
 
-device_t solder, fan, fan_head;
+device_t solder, 
+		fan,
+		fan_heat;
 
 #endif /* COMMON_H_ */

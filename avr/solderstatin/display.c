@@ -31,6 +31,8 @@ typedef uint8_t (*strOut)(dispString_t *value);
 
 static strOut stringOut;
 
+#define print_state(dev) ((uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((dev.state == STATE_OFF)?" OFF":" ON  ")))
+
 inline uint8_t itoaFlash(device_t dev, char *buf){
 	if ((dev.state == STATE_SET) && (flash)){
 		return (uint8_t) snprintf(buf, DISPLAY_MAX_BUF, "    ");
@@ -46,7 +48,7 @@ uint8_t fan_headState(dispString_t *value){
 	value->color = COLORED_SHOW;
 	value->font = &FontSmall;
 	stringOut = solderTempr;
-	return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((fan_head.state == STATE_OFF)?" OFF":" ON  "));
+	return print_state(fan_heat);
 }
 
 uint8_t fan_headTempr(dispString_t *value){
@@ -55,7 +57,7 @@ uint8_t fan_headTempr(dispString_t *value){
 	value->color = COLORED_SHOW;
 	value->font = &FontSuperBigDigit;
 	stringOut = fan_headState;
-	return itoaFlash(fan_head, value->str);
+	return itoaFlash(fan_heat, value->str);
 }
 
 uint8_t solderState(dispString_t *value){
@@ -64,7 +66,7 @@ uint8_t solderState(dispString_t *value){
 	value->color = COLORED_SHOW;
 	value->font = &FontSmall;
 	stringOut = fan_headTempr;
-	return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((solder.state == STATE_OFF)?" OFF":" ON  "));
+	return print_state(solder);
 }
 
 uint8_t solderTempr(dispString_t *value){

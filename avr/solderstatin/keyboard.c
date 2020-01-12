@@ -25,10 +25,10 @@ ISR(SOLDER_BUTTON_INT){
 }
 
 ISR(FAN_BUTTON_INT){
-	if ((fan_head.state != STATE_OFF) && (!fan_head.delayOffOn)){
+	if ((fan_heat.state != STATE_OFF) && (!fan_heat.delayOffOn)){
 		FanHeatOff();
-		fan_head.state = STATE_OFF;
-		fan_head.periodRepeatMs = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
+		fan_heat.state = STATE_OFF;
+		fan_heat.delayOffOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
 	}
 }
 
@@ -47,7 +47,7 @@ inline void settingMode(device_t *device){
 void keySettingModeOff(void){
 	settingMode(&solder);
 	settingMode(&fan);
-	settingMode(&fan_head);
+	settingMode(&fan_heat);
 	SetTimerTask(keySettingModeOff, PERIOD_1S);
 }
 
@@ -60,7 +60,7 @@ inline void repeatMode(device_t *device){
 void keyboardRepeat(void){
 	repeatMode(&solder);
 	repeatMode(&fan);
-	repeatMode(&fan_head);
+	repeatMode(&fan_heat);
 	SetTimerTask(keyboardRepeat, KEY_PERIOD_REPEAT_MS);
 }
 
@@ -106,7 +106,7 @@ void keyboard(void){
 	ButtonIsOn(SOLDER_BUTTON_PLUS_OUT, SOLDER_BUTTON_PLUS_PIN),
 	ButtonIsOn(SOLDER_BUTTON_MINUS_OUT, SOLDER_BUTTON_MINUS_PIN)
 	);
-	keyProcess(&fan_head,
+	keyProcess(&fan_heat,
 	ButtonIsOn(FAN_BUTTON_ON_OUT, FAN_BUTTON_ON_PIN),
 	ButtonIsOn(FAN_BUTTON_PLUS_OUT, FAN_BUTTON_PLUS_PIN),
 	ButtonIsOn(FAN_BUTTON_MINUS_OUT, FAN_BUTTON_MINUS_PIN)
@@ -125,11 +125,11 @@ void keyboard_init(void){
 	PinInputMode(FAN_BUTTON_PLUS_OUT, FAN_BUTTON_PLUS_PIN);
 	
 	solder.maxValue = SOLDER_MAX;
-	fan_head.maxValue = FAN_MAX;
+	fan_heat.maxValue = FAN_HEAT_MAX;
 	solder.delayOffOn = KEY_DELAY_ONOFF_TICK;
-	fan_head.delayOffOn = KEY_DELAY_ONOFF_TICK;
+	fan_heat.delayOffOn = KEY_DELAY_ONOFF_TICK;
 	solder.periodRepeatMs = KEY_DELAY_REPEAT_TICK;
-	fan_head.periodRepeatMs = KEY_DELAY_REPEAT_TICK;
+	fan_heat.periodRepeatMs = KEY_DELAY_REPEAT_TICK;
 
 	SolderButInteruptOn();
 	FanButInteruptOn();
