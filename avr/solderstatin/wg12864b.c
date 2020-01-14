@@ -75,6 +75,7 @@ uint8_t wg_status(void){
 }
 
 bool wg_is_busy(void){
+	TaskManager();			//task continue!
 	return (WG_IS_BUSY(wg_status()));
 }
 

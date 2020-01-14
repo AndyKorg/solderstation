@@ -39,6 +39,11 @@
 
 static struct PID_DATA solderPID, fan_head_PID;
 
+//Сработал геркон
+ISR(GERCON_FAN_INT){
+	
+}
+
 ISR(ADC_vect){
 	static uint8_t countMux = 0;
 	switch(countMux){

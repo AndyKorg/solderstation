@@ -31,9 +31,9 @@ int main(void)
 	
 	RunRTOS();
 	
+	device_init();
 	display_init();
 	keyboard_init();
-	device_init();
 
 	console_print("start\r");
 	

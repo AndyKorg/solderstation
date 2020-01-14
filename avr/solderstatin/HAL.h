@@ -17,9 +17,6 @@
 /************************************************************************/
 #define SOURCE_AREF				((0<<REFS1) | (0<<REFS0)) //00-External REF
 #define ADLAR_MODE				(0<<ADLAR)
-//Регулировка усиления CS
-#define REG_AMPLF_PORT			PORTB
-#define REG_AMPLF_PIN			PORTB4
 
 #define SPI_PORT_OUT			PORTB
 #define SPI_MOSI				PORTB5
@@ -29,8 +26,8 @@
 /************************************************************************/
 /*                        POWER                                         */
 /************************************************************************/
-#define POWER_OFF_OUT			PORTB
-#define POWER_OFF_PIN			PORTB0
+#define POWER_OFF_OUT			PORTD
+#define POWER_OFF_PIN			PORTD7
 #define PowerOn()				do {POWER_OFF_OUT |= (1<<POWER_OFF_PIN);} while (0)
 #define PowerOff()				do {POWER_OFF_OUT &= ~(1<<POWER_OFF_PIN);} while (0)
 
@@ -69,7 +66,7 @@
 
 //guarantee power heat
 #define FAN_HEAT_POWER_PORT		PORTB
-#define FAN_HEAT_POWER_PIN		PORTB1
+#define FAN_HEAT_POWER_PIN		PORTB4
 #define FanheatPowerOn()		do {FAN_HEAT_POWER_PORT |= (1<<FAN_HEAT_POWER_PIN);} while (0);
 #define FanheatPowerOff()		do {FAN_HEAT_POWER_PORT &= ~(1<<FAN_HEAT_POWER_PIN);} while (0);
 #define FAN_MUX					((0<<MUX4) | (0<<MUX3) | (0<<MUX2) | (1<<MUX1) | (0<<MUX0))
@@ -111,17 +108,17 @@
 /************************************************************************/
 #define DISPLAY_DATA_OUT		PORTC
 #define DISPLAY_PIN_DI_PORT		PORTA
-#define DISPLAY_PIN_DI			PORTA6
+#define DISPLAY_PIN_DI			PORTA4
 #define DISPLAY_PIN_RW_PORT		PORTA
 #define DISPLAY_PIN_RW			PORTA5
 #define DISPLAY_PIN_E_PORT		PORTA
-#define DISPLAY_PIN_E			PORTA7
+#define DISPLAY_PIN_E			PORTA3
 #define DISPLAY_PIN_CS1_PORT	PORTA
-#define DISPLAY_PIN_CS1			PORTA3
+#define DISPLAY_PIN_CS1			PORTA7
 #define DISPLAY_PIN_CS2_PORT	PORTA
-#define DISPLAY_PIN_CS2			PORTA4
+#define DISPLAY_PIN_CS2			PORTA6
 #define DISPLAY_PIN_RST_PORT	PORTB
-#define DISPLAY_PIN_RST			PORTB4
+#define DISPLAY_PIN_RST			PORTB5
 
 #define DISPLAY_X_MAX			128
 #define DISPLAY_Y_MAX			64
@@ -129,6 +126,32 @@
 /************************************************************************/
 /*                        KEYBOARD                                      */
 /************************************************************************/
+#define KEY_MODULE_STLED							//for STLED316 chip
+//#define KEY_MODULE_SCAN								//for bitbang scan
+
+//Описание STLED316
+#define STLED_DI_PORT			PORTB				//Данные STLED
+#define STLED_DI_PIN			PORTB0
+#define STLED_CLK_PORT			PORTB				//Тактовые STLED
+#define STLED_CLK_PIN			PORTB1
+#define STLED_CS_PORT			PORTB				//Разрешение кристаллаs STLED
+#define STLED_CS_PIN			PORTB2
+#define STLED_IRQ_PORT			PORTD				//прерывание по нажатию клавиши
+#define STLED_IRQ_PIN			PORTD3
+#define STLED_IRQ				INT1_vect
+#define STLED_InterruptOn()		do {MCUCR = (MCUCR & ~((1<<ISC11) | (1<<ISC10))) | (1<<ISC11) | (0<<ISC10); GICR |= (1<<INT1);} while (0) //1->0
+//sacn-коды клавиш для STLED316
+#define KEYS_MAX				6
+#define STLED_KEY1_LINE			0x0100
+#define STLED_KEY2_LINE			0x0200
+#define FAN_PLUS				(STLED_KEY2_LINE+(u16) 0b00000100)
+#define FAN_MINUS				(STLED_KEY2_LINE+(u16) 0b00000010)
+#define FAN_ON					(STLED_KEY2_LINE+(u16) 0b00000001)
+#define SOLDER_PLUS				(STLED_KEY1_LINE+(u16) 0b00000100)
+#define SOLDER_MINUS			(STLED_KEY1_LINE+(u16) 0b00000010)
+#define SOLDER_ON				(STLED_KEY1_LINE+(u16) 0b00000001)
+
+//сканирование клавиш без STLED316
 #define FAN_BUTTON_PLUS_OUT		PORTB
 #define FAN_BUTTON_PLUS_PIN		PORTB6
 #define FAN_BUTTON_MINUS_OUT	PORTB
