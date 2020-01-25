@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data type="font" name="Font8">
+    <family>Small Fonts</family>
+    <size>8</size>
+    <ascent>11</ascent>
+    <descent>2</descent>
+    <style>Normal</style>
+    <widthType>proportional</widthType>
+    <antialiasing>false</antialiasing>
+    <foreground>ff000000</foreground>
+    <background>ffffffff</background>
+    <multiplicityWidth>1</multiplicityWidth>
+    <multiplicityHeight>1</multiplicityHeight>
+    <string>0123456789- %</string>
+    <converted>D:/googleDrive/Projects/solderstation/avr/solderstatin/font8.c</converted>
+    <chars>
+        <char code="0030" character="0">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAOElEQVQImYXNMQ7AMAzDQLLI/7/MDoULNEPjTQdItortrh0+qKICsAZmRT3Uj7gAqvdJ9eCE3/oNd14QGSoGtFcAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0031" character="1">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAMAAAAKCAYAAABxJ+R3AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAKklEQVQImWP8////fwYoYGJAAnAOIyMjhMPIyIiQgWnDrgc35////6gyAArWChDHr5ygAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0032" character="2">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAN0lEQVQImW2OQQoAIAzDGtn/v1wPMtHqjiENw7YVNxJcEBAgSaoGXQGWmdk65y0886+5YTa/f06d2BMgbVw7LwAAAABJRU5ErkJggg==</picture>
+        </char>
+        <char code="0033" character="3">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAPElEQVQImX2OMQoAMQzDrCP//7I6lNC0w3kKQjZBNU++F1wQCJAkqQa9AmxzAvXeVI/ZW52aRt81q79/LjQcGRkyYtDIAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0034" character="4">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAANUlEQVQImX3NwQ0AIAgEQdf+e14fBiNg5DlwHKqjzKzQEMgY8I8D4+5rcWCjei7V/DMWz6IFiRYTEERQJRMAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0035" character="5">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAQAAAAKCAYAAACT+/8OAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAM0lEQVQImYWOQQoAIBACx+j/X55OG20EeVRHjCqHBpcmQJJuABS5kWrNM03yGVU78vyxAJ5MEBr8NWNOAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0036" character="6">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAANklEQVQImXWOyQ0AIAzDbMT+K4dXEWeflpPUJOG4doINqqgA9AJry98Epqm+h3pZFU1yx79/DpZQEx50NVgIAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0037" character="7">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAQAAAAKCAYAAACT+/8OAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAL0lEQVQImZWMMQ4AIBCDqPH/X8bpjHqTjE0hqhwMHiZAkvuhUuZWkqD2xsfQosUCjMoQDKkYSkQAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0038" character="8">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAN0lEQVQImX2OQQoAIAzDGvH/X44HmaCouy2kW1HNMe0EGwQCJEl6gboCTKguS72b10fveC3fngNCKRkdWZfyWAAAAABJRU5ErkJggg==</picture>
+        </char>
+        <char code="0039" character="9">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAO0lEQVQImX2OSQoAIBDDGvH/X44HGXEBe2tohkE1V9oNDggESJL0AnUFmFBdq0NX17qVsufR1QmrfP8cDUYZGGY1TkAAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="002d" character="-">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAMAAAAKCAYAAABxJ+R3AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAJElEQVQImWP8////fwYoYGJAAkRyWBgYGBgYGRkRHJiBRBoAAIzHBxT+08ISAAAAAElFTkSuQmCC</picture>
+        </char>
+        <char code="0020" character=" ">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAIAAAAKCAYAAACe5Y9JAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAF0lEQVQImWP8////fwYGBgYmBiigFgMAYI8EEMXDepAAAAAASUVORK5CYII=</picture>
+        </char>
+        <char code="0025" character="%">
+            <picture format="png">iVBORw0KGgoAAAANSUhEUgAAAAUAAAAKCAYAAAB8OZQwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAPUlEQVQImXWOQQ7AIAzDbMT/vxwOUzaEWG513agmCUfGCV6oov6bKhOgtSpJPrMAeMyC9o79vJn70OX1zwXkChYZw+C2+gAAAABJRU5ErkJggg==</picture>
+        </char>
+    </chars>
+</data>

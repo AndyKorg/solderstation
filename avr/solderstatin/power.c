@@ -11,5 +11,13 @@
 
 void power_init(void){
 	PinOutputMode(POWER_OFF_OUT, POWER_OFF_PIN);
+	PowerOff();//Что бы не щелкало при каждом включении
+}
+
+void power_off(){
+	PowerOff();
+}
+
+void power_on(){
 	PowerOn();
 }

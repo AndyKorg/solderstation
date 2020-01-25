@@ -47,7 +47,7 @@
 #define	X(x)					(X_SET | (x & X_MASK))
 #define	Y(y)					(Y_SET | (y & Y_MASK))
 
-static init_end_t ini_end_cb;
+static draw_end_t end_clear_cb;
 
 typedef struct{
 	uint8_t x;
@@ -59,7 +59,7 @@ typedef struct{
 	uint8_t yOffset;
 	uint8_t nextCS;
 	uint8_t yNew;
-	symbol_draw_end_t draw_end_cb; //callback end draw symbol
+	draw_end_t draw_end_cb; //callback end draw symbol
 } drawChar_t;
 
 static drawChar_t currChar;			//functions call chain: drawCharAt -> drawCharPart -> drawCharPartX -> drawCharPart -> ... countBand ... -> draw_end_cb
@@ -104,7 +104,7 @@ void _clear_band(void){
 	}
 }
 
-void clear_screen (void)
+void _clear_screen (void)
 {
 	static uint8_t y=0;
 	CS_BOTH_ON();
@@ -112,10 +112,21 @@ void clear_screen (void)
 		lcd_com(Y(y));
 		_clear_band();
 		y++;
-		SetTimerTask(clear_screen, 1);
+		SetTimerTask(_clear_screen, 1);//продолжаем стирание
 		return;
 	}
+	CS_BOTH_OFF();
 	y = 0;
+	if (end_clear_cb){	//Стирание окончено, вызываем следующую операцию
+		end_clear_cb();
+	}
+}
+
+//Запуск стирания экрана
+void clear_screen (draw_end_t fn_cb)
+{
+	end_clear_cb = fn_cb;
+	SetTimerTask(_clear_screen, 1);
 }
 
 void gotoxy (const unsigned char x, const unsigned char y)
@@ -186,7 +197,7 @@ void drawCharPart(void){
 *  @brief: this draws a character on the pattern buffer but not refresh
 *          returns the x position of the end character
 */
-unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, const eColored colored, symbol_draw_end_t end_func) {
+unsigned char drawCharAt(unsigned char x, unsigned char y, char ascii_char, sFONT* font, const eColored colored, draw_end_t end_func) {
 	int i;
 	unsigned int char_offset = 0;
 	sPROP_SYMBOL symbol;
@@ -252,7 +263,7 @@ unsigned char drawStringAt(const unsigned char x, const unsigned y, const char* 
 */
 unsigned char enterY(unsigned char y, unsigned char align, sFONT *font){
 	unsigned char newY = (y + font->Height) + (align?HEIGHT_BAND % (y+font->Height):0);
-	return (newY <= (DISPLAY_Y_MAX-font->Height))? newY : y;
+	return (newY <= (DISPLAY_Y_MAX - font->Height))? newY : y;
 }
 
 void _wg12864_init(void)
@@ -262,11 +273,8 @@ void _wg12864_init(void)
 	lcd_com(Y(0));
 	lcd_com(X(0));
 	lcd_com(PAGE_START);
-	clear_screen();
 	CS_BOTH_OFF();
-	if (ini_end_cb){
-		ini_end_cb();
-	}
+	clear_screen(end_clear_cb);//тут callback функция сама себя инициализирует
 }
 
 void _wg12864_rst(void)
@@ -275,9 +283,9 @@ void _wg12864_rst(void)
 	SetTimerTask(_wg12864_init, 100);//Ждем готовности дисплея
 }
 
-void wg12864_init(init_end_t fn)
+void wg12864_init(draw_end_t fn)
 {
-	ini_end_cb = fn;
+	end_clear_cb = fn;
 	PinOutputMode(DISPLAY_PIN_RST_PORT, DISPLAY_PIN_RST);
 	DISPLAY_PIN_RST_PORT &= ~(1<<DISPLAY_PIN_RST);
 	DataPortOutMode();

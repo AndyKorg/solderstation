@@ -75,6 +75,7 @@ typedef struct _tFont
 extern sFONT FontBigDigit;
 extern sFONT FontSuperBigDigit;
 extern sFONT FontSmall;
+extern sFONT Font8;
 
 #ifdef __cplusplus
 }

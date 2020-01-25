@@ -170,6 +170,12 @@
     <Compile Include="display.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="eeprom.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="eeprom.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="EERTOS.c">
       <SubType>compile</SubType>
     </Compile>
@@ -183,6 +189,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FIFO.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="font8.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="FontBIG.c">
@@ -216,6 +225,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="power.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="setting_save.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="setting_save.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="smallFont.c">
