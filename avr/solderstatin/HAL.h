@@ -32,7 +32,7 @@
 #define PowerOff()				do {POWER_OFF_OUT &= ~(1<<POWER_OFF_PIN);} while (0)
 
 
-#define NO_DEVICE_ADC			850		//«начение при превышении которого считаетс€ что устройство не подключено
+#define NO_DEVICE_ADC			895		//«начение при превышении которого считаетс€ что устройство не подключено
 #define NO_DEVICE_MS			20		//ѕериод контрол€
 #define NO_DEVICE_PERIOD_S		3		//≈сли в течении этого времении знаение превышает NO_DEVICE_ADC, то устройство переводитс€ в статус не подключено
 #define DEVICE_CONNECT_S		3		//≈сли в течении этого времении знаение не превышает NO_DEVICE_ADC, и предыдущий статус был NO_DEVICE_ADC, устройство считатес€ подключеным, но в статусе off
@@ -61,7 +61,7 @@
 /************************************************************************/
 #define FAN_PWM_PORT			PORTB
 #define FAN_PWM_PIN				PORTB3
-#define FAN_HEAT_MAX_ADC		550	//over 450 C//!DEBUG!
+#define FAN_HEAT_MAX_ADC		800	//over 450 C//!DEBUG!
 #define FAN_MAX_ADC				960
 
 #define FAN_PWM_OCR				OCR0
@@ -93,8 +93,11 @@
 #define FAN_HEAT_MUX			((0<<MUX4) | (0<<MUX3) | (0<<MUX2) | (0<<MUX1) | (1<<MUX0))
 #define FAN_HEAT_SENSOR_ADC()	do {ADMUX = SOURCE_AREF | ADLAR_MODE | FAN_HEAT_MUX;} while (0)
 
-#define GERCON_FAN_OUT			PORTD
+#define GERCON_FAN_OUT_PORT		PORTD
 #define GERCON_FAN_PIN			PORTD2
+#define FanNotStand()			(*PIN(&GERCON_FAN_OUT_PORT) & (1<<GERCON_FAN_PIN))			 //фен вне подставки
+#define FanInStand()			(!((*PIN(&GERCON_FAN_OUT_PORT)) & (1<<GERCON_FAN_PIN))) //фен в подставке
+
 #define GERCON_FAN_INT			INT0_vect
 #define GerconFanInteruptOn()	do {MCUCR = (MCUCR & ~((1<<ISC01) | (1<<ISC00))) | (1<<ISC01) | (0<<ISC00); GICR |= (1<<INT0);} while (0) //1->0
 

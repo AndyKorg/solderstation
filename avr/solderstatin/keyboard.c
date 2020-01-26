@@ -21,22 +21,22 @@
 
 void solder_Off(void)
 {
-    if ((solder.state != STATE_OFF) && (!solder.delayOffOn)) {
+    if (solder.state != STATE_OFF) {
         if (solder.state != STATE_NO_DEVICE) {
             solder.state = STATE_OFF;
         }
-        solder.delayOffOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
+        solder.delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
         console_print("sol of\r");
     }
 }
 
 void fan_heat_Off(void)
 {
-    if ((fan_heat.state != STATE_OFF) && (!fan_heat.delayOffOn)) {
+    if (fan_heat.state != STATE_OFF) {
         if (fan_heat.state != STATE_NO_DEVICE) {
             fan_heat.state = STATE_OFF;
         }
-        fan_heat.delayOffOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
+        fan_heat.delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
         console_print("fan of\r");
     }
 }
@@ -107,13 +107,13 @@ void keyboardRepeat(void)
 
 inline void keyProcess(device_t *device, u08 onOff, u08 plus, u08 minus)
 {
-    if (device->delayOffOn) {			//Идет задержка после срабатывания включения или выключения
-        device->delayOffOn = onOff?KEY_DELAY_ONOFF_TICK:(device->delayOffOn-1);//Если кнопка еще нажата, то увеличиваем интервал
+    if (device->delayOffToOn) {			//Идет задержка после срабатывания включения или выключения
+        device->delayOffToOn = onOff?KEY_DELAY_ONOFF_TICK:(device->delayOffToOn-1);//Если кнопка еще нажата, то увеличиваем интервал
     }
     if (onOff) {
-        if ((device->state == STATE_OFF) && (!device->delayOffOn)) {
+        if ((device->state == STATE_OFF) && (!device->delayOffToOn)) {
             device->state = STATE_ON;
-            device->delayOffOn = KEY_DELAY_ONOFF_TICK;
+            device->delayOffToOn = KEY_DELAY_ONOFF_TICK;
             if (device == &solder) {
                 console_print("sol on\r");
             }
@@ -177,8 +177,8 @@ void keyboard_init(void)
     solder.maxValue = SOLDER_MAX;
     fan_heat.maxValue = FAN_HEAT_MAX;
     //Повторное выключение-выключение, тиков диспетчера задач
-    solder.delayOffOn = KEY_DELAY_ONOFF_TICK;
-    fan_heat.delayOffOn = KEY_DELAY_ONOFF_TICK;
+    solder.delayOffToOn = KEY_DELAY_ONOFF_TICK;
+    fan_heat.delayOffToOn = KEY_DELAY_ONOFF_TICK;
     solder.periodRepeatMs = KEY_DELAY_REPEAT_TICK;
     fan_heat.periodRepeatMs = KEY_DELAY_REPEAT_TICK;
 
@@ -199,8 +199,6 @@ void keyboard_init(void)
     config.solder_off = solder_Off;
     stled316_init(config);
 #endif
-
-    GerconFanInteruptOn();
 
     SetTimerTask(keyboard, KEY_SCAN_PERIOD_MS);			//Сканирование клавиатуры
     SetTimerTask(keySettingModeOff, PERIOD_1S);			//Снятие режима установки

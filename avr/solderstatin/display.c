@@ -18,7 +18,7 @@
 
 #define  DISPLAY_MAX_BUF 32
 
-uint8_t flash = 0;
+bool flash = false;
 bool forceShowNeedSolder = false, forceShowNeedFan = false;		//выводить значения целевой температуры
 
 //Выводимая строка
@@ -35,14 +35,14 @@ typedef uint8_t (*strOut)(dispString_t *value);
 static strOut stringOut;//Функция формирования следующей строки
 static uint8_t fan_heat_tempr_end_x = 0; //координата x окончания вывода строки температуры фена
 
-inline uint8_t print_state(dispString_t *value, const eState state)
+inline uint8_t print_state(dispString_t *value, const eState state, bool flash_flag)
 {
     if (state == STATE_NO_DEVICE) {
         return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", " ---  ");
     } else if(state == STATE_OFF) {
         return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", " OFF");
     }
-    return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", " ON  ");
+    return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((!flash_flag) || flash)?" ON  ":"      ");
 }
 
 
@@ -60,7 +60,7 @@ void SetForceFlagTempr(device_t *dev, eState *prev, bool *flag, TPTR hideFunc)
 {
     if ((dev->state == STATE_ON) && ((*prev) != STATE_ON)) {
         *flag = true;
-        SetTimerTask(hideFunc, SHOW_NEED_PERIOD_S*1000);
+        SetTimerTask(hideFunc, SHOW_NEED_PERIOD_S*PERIOD_1S);
     }
     if (dev->state != STATE_ON) {  	//Спрятать целевую температутру если вышли из режима включения
         *flag = false;
@@ -78,19 +78,20 @@ inline uint8_t itoaFlash(device_t dev, char *buf, bool forceShowNeed)
 
 uint8_t solderTempr(dispString_t *value);
 
+//Скорость фена и статус геркона
 uint8_t fan_value(dispString_t *value)
 {
     static u16 prev = 0;
     stringOut = solderTempr;
+    value->x = fan_heat_tempr_end_x+3;
+    value->y = DISPLAY_Y_MAX - Font8.Height-2;//отмерим от края экрана вверх на высоту шрифта
+    value->color = COLORED_SHOW;
+    value->font = &Font8;
+    if (fan.state != STATE_ON) {
+        prev = 0;
+        return snprintf(value->str, DISPLAY_MAX_BUF, " ---   ");
+    }
     if ((fan_heat_tempr_end_x) && (prev != fan.current)) {
-        value->x = fan_heat_tempr_end_x+3;
-        value->y = DISPLAY_Y_MAX - Font8.Height-2;//отмерим от края экрана вверх на высоту шрифта
-        value->color = COLORED_SHOW;
-        value->font = &Font8;
-        if (fan.state != STATE_ON) {
-            prev = 0;
-            return snprintf(value->str, DISPLAY_MAX_BUF, " ---   ");
-        }
         prev = fan.current;
         uint8_t tmp = fan.current/(fan.limitADC/100);
         return snprintf(value->str, DISPLAY_MAX_BUF, " %03d%%  ", tmp>100?100:tmp);
@@ -106,7 +107,7 @@ uint8_t fan_headState(dispString_t *value)
     value->color = COLORED_SHOW;
     value->font = &FontSmall;
     stringOut = fan_value;
-    return print_state(value, fan_heat.state);
+    return print_state(value, fan_heat.state, ((fan_heat.state == STATE_ON) && (FanInStand())) );
 }
 
 uint8_t fan_headTempr(dispString_t *value)
@@ -128,7 +129,7 @@ uint8_t solderState(dispString_t *value)
     value->color = COLORED_SHOW;
     value->font = &FontSmall;
     stringOut = fan_headTempr;
-    return print_state(value, solder.state);
+    return print_state(value, solder.state, false);
 }
 
 uint8_t solderTempr(dispString_t *value)
@@ -168,7 +169,7 @@ void ShowString(void)
 
 void flashSwitch(void)
 {
-    flash ^= 0xff;
+    flash = flash?false:true;
     SetTimerTask(flashSwitch, FLASH_PERIOD_MS);
 }
 

@@ -75,7 +75,7 @@ typedef struct {
     //keyboard
     u16 periodRepeatMs;							//счетчик автоповтора нажатия.
     u08 periodSettingS;							//счетчик периода установки
-    u08 delayOffOn;								//Защита от дребезга при включении
+    u08 delayOffToOn;								//Защита от дребезга при включении
     u16	limitADC;								//Максимальное значение выключающее регулирование
     settind_dev_t *setting;						//настройки для устройства
 } device_t;

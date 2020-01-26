@@ -17,15 +17,16 @@
 #include "power.h"
 #include "setting_save.h"
 
+#if (SOLDER_MAX_ADC >= NO_DEVICE_ADC)
+#error "SOLER_MAX_ADC >= NO_DEVICE_ADC! Check them!"
+#endif
+#if (FAN_HEAT_MAX_ADC >= NO_DEVICE_ADC)
+#error "FAN_HEAT_MAX_ADC >= NO_DEVICE_ADC! Check them!"
+#endif
+
 #define ADC_START()			do {ADCSRA = (1<<ADEN) | (1<<ADSC) | (0<<ADATE) | (1<<ADIE) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);} while (0)
 
 static struct PID_DATA solderPID, fan_head_PID;
-
-//—работал геркон
-ISR(GERCON_FAN_INT)
-{
-    console_print("g");
-}
 
 ISR(ADC_vect)
 {
@@ -59,20 +60,39 @@ ISR(ADC_vect)
 
 inline void _checkDev(device_t *device, uint16_t *count)
 {
-    if (device->state != STATE_NO_DEVICE) {
+    if (device->state != STATE_NO_DEVICE) {	//”стройство на месте, ждем его исчезновени€
         *count = (device->current >NO_DEVICE_ADC)?(*count+1):0;
-        if (*count > ((NO_DEVICE_PERIOD_S * 1000)/NO_DEVICE_MS)) {//ѕревышен период контрол€, переводим устройство в отсутствующие
+        if (*count > ((NO_DEVICE_PERIOD_S * PERIOD_1S)/NO_DEVICE_MS)) {//ѕревышен период контрол€, переводим устройство в отсутствующие
             device->state = STATE_NO_DEVICE;
             *count = 0;
         }
-    } else {
+    } else {				//Ќет устройства, ждем его по€влени€
         *count = (device->current <NO_DEVICE_ADC)?(*count+1):0;
-        if (*count > ((DEVICE_CONNECT_S * 1000)/NO_DEVICE_MS)) {
+        if (*count > ((DEVICE_CONNECT_S * PERIOD_1S)/NO_DEVICE_MS)) {
             device->state = STATE_OFF;
             *count = 0;
         }
     }
 }
+
+//ѕроверка геркона
+void GerconControl(void)
+{
+    static uint16_t countTick = 0;
+    if (FanInStand()) {
+        countTick++;
+    } else {
+        countTick = 0;
+    }
+    if (countTick > (FAN_IN_STAND_PERIOD_OFF_S * PERIOD_1S)/FAN_PERIOD_TICK) { //истек период в течении которого фен находитс€ в подставке
+        if (fan_heat.state == STATE_ON) {
+            fan_heat.state = STATE_OFF;
+        }
+        countTick = 0;
+    }
+    SetTimerTask(GerconControl, FAN_PERIOD_TICK);
+}
+
 //ѕроверка наличи€ устройства в гнезде
 void checkDevice(void)
 {
@@ -204,6 +224,9 @@ void fan_init(void)
     FanHeatOff();
     PinOutputMode(FAN_PWM_PORT, FAN_PWM_PIN);
     FanOff();
+    PinInputMode(GERCON_FAN_OUT_PORT, GERCON_FAN_PIN);
+    PinOutputMode(FAN_HEAT_POWER_PORT, FAN_HEAT_POWER_PIN);
+    FanheatPowerOff();
     fan_heat.state = STATE_OFF;
     fan_heat.need = 0;
     fan_heat.limitADC = FAN_HEAT_MAX_ADC;
@@ -256,6 +279,7 @@ uint8_t pidChange(uint8_t cmd, uint16_t value)
         break;
     }
     if (change) {
+        settingSave();
         pid_Reset_Integrator(pid);
         char tmp[UART_BUF_SIZE];
         snprintf(tmp, UART_BUF_SIZE, "c %02x new k=%04x max=%04x\r", cmd, value, pid->maxError);
@@ -295,6 +319,7 @@ void device_init()
     SetTask(fanControl);
     SetTask(fanControlPID);
     SetTask(checkDevice);
+    SetTask(GerconControl);
     //solder command
     console_cb(K_PID_SOLDER+K_P_CHANGE, pidChange);
     console_cb(K_PID_SOLDER+K_I_CHANGE, pidChange);
