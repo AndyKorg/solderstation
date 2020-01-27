@@ -69,7 +69,7 @@ inline void _checkDev(device_t *device, uint16_t *count)
     } else {				//Нет устройства, ждем его появления
         *count = (device->current <NO_DEVICE_ADC)?(*count+1):0;
         if (*count > ((DEVICE_CONNECT_S * PERIOD_1S)/NO_DEVICE_MS)) {
-            device->state = STATE_OFF;
+            device->state = STATE_NORMAL;
             *count = 0;
         }
     }
@@ -85,8 +85,8 @@ void GerconControl(void)
         countTick = 0;
     }
     if (countTick > (FAN_IN_STAND_PERIOD_OFF_S * PERIOD_1S)/FAN_PERIOD_TICK) { //истек период в течении которого фен находится в подставке
-        if (fan_heat.state == STATE_ON) {
-            fan_heat.state = STATE_OFF;
+        if (fan_heat.on) {
+            fan_heat.on = false;
         }
         countTick = 0;
     }
@@ -107,13 +107,14 @@ void fanControl(void)
 {
     static uint16_t whaitTicFenOff = 0;
 
-    if (fan_heat.state == STATE_OFF) {
+    if (!fan_heat.on) {
         FanHeatOff();
         if (fan_heat.current >= FAN_HEAT_TEMPR_STOP_MIN) {
             FAN_PWM_OCR = 0xff;//Maximum speed fen
             FanOn();
             whaitTicFenOff = FAN_HEAT_TEMPR_STOP_TICK;
             fan.state = STATE_FAN_PREPARE_OFF;
+            fan.on = true;
             power_on();
         } else {
             if (whaitTicFenOff) {
@@ -121,18 +122,22 @@ void fanControl(void)
             }
             if (whaitTicFenOff == 0) {
                 FanOff();
-                fan.state = STATE_OFF;
+                fan.state = STATE_NORMAL;
+                fan.on = false;
                 power_off();
             }
         }
-    } else if ((fan_heat.state == STATE_ON) || (fan_heat.state == STATE_SET)) {
+    } else if (fan_heat.on) {
         FanOn();
         FanHeatOn();
-        fan.state = STATE_ON;
+        fan.on = true;
+        fan.state = STATE_NORMAL;
         power_on();	//гарантировано питание станции
     } else if (fan_heat.state == STATE_NO_DEVICE) {
         FanHeatOff();
         FanOff();
+        fan_heat.on = false;
+        fan.on = false;
     }
     SetTimerTask(fanControl, FAN_PERIOD_TICK);
 }
@@ -149,26 +154,24 @@ void fanControlPID(void)
     int16_t pid = 0;
     static uint8_t prevFan = 0;
     uint8_t speedFan;
-    if ((fan_heat.state == STATE_ON) || (fan_heat.state == STATE_SET)) {
+    if (fan_heat.on) {
         pid = pid_Controller(fan_heat.need, fan_heat.current, &fan_head_PID);
         if (pid >0xff) pid = 0xff;
-        FAN_HEAT_PWM_OCR = pid;
+        if (pid<0) pid = 0;
+        FAN_HEAT_PWM_OCR = (uint8_t) pid;
         char tmp[UART_BUF_SIZE];
-        snprintf(tmp, UART_BUF_SIZE, "a=%d p=%d kp=%d\r", fan_heat.current, pid, fan_head_PID.P_Factor);
+        snprintf(tmp, UART_BUF_SIZE, "c=%d p=%d kp=%d\r", fan_heat.current, pid, fan_head_PID.P_Factor);
         console_print(tmp);
         if (fan_heat.current > fan_heat.limitADC) {
             FanHeatOff();
-            fan_heat.state = STATE_OFF;//Alarm!!
+            fan_heat.on = false;//Alarm!!
         } else {
             FanHeatOn();
             speedFan = map(fan.current, 0, FAN_MAX_ADC, FAN_SPEED_MIN, 0xff);
-            snprintf(tmp, UART_BUF_SIZE, "f=%d\r", fan.current);
-            console_print(tmp);
             if (prevFan != speedFan) {
                 if (speedFan < FAN_SPEED_MIN) speedFan = FAN_SPEED_MIN;
                 FAN_PWM_OCR = speedFan;
                 prevFan = speedFan;
-                console_uint8(prevFan, 1);
             }
         }
     }
@@ -182,9 +185,9 @@ void fanControlPID(void)
 void solderControl(void)
 {
     int16_t pid=0;
-    if ((solder.state == STATE_OFF) || (solder.state == STATE_NO_DEVICE)) {
+    if ((!solder.on) || (solder.state == STATE_NO_DEVICE)) {
         SolderOff();
-    } else if ((solder.state == STATE_ON) || (solder.state == STATE_SET)) {
+    } else if (solder.on) {
         pid = pid_Controller(solder.need, solder.current, &solderPID);
         if (pid <0 ) pid = 0;
         if (pid > 0xff) pid = 0xff;//8 bit
@@ -194,7 +197,7 @@ void solderControl(void)
         console_print(tmp);*/
         if (solder.current > solder.limitADC) {
             SolderOff();
-            solder.state = STATE_OFF;
+            solder.on = false;
         } else {
             SolderOn();
         }
@@ -206,7 +209,8 @@ void solder_init(void)
 {
     PinOutputMode(SOLDER_PWM_PORT, SOLDER_PWM_PIN); //with PWM_INIT
     SolderOff();
-    solder.state = STATE_OFF;
+    solder.on = false;
+    solder.state = STATE_NORMAL;
     solder.need = 0;
     solder.limitADC = SOLDER_MAX_ADC;
     solder.current = 0;
@@ -227,7 +231,8 @@ void fan_init(void)
     PinInputMode(GERCON_FAN_OUT_PORT, GERCON_FAN_PIN);
     PinOutputMode(FAN_HEAT_POWER_PORT, FAN_HEAT_POWER_PIN);
     FanheatPowerOff();
-    fan_heat.state = STATE_OFF;
+    fan_heat.on = false;
+    fan_heat.state = STATE_NORMAL;
     fan_heat.need = 0;
     fan_heat.limitADC = FAN_HEAT_MAX_ADC;
     fan_heat.setting = &setting.set.fan_heat;
@@ -236,7 +241,8 @@ void fan_init(void)
     fan_heat.setting->I_Factor = K_I;
     fan_heat.setting->P_Factor = K_P;
     fan_heat.setting->value = 0;
-    fan.state = STATE_OFF;
+    fan.on = false;
+    fan.state = STATE_NORMAL;
     fan.need = 0;
     fan.current = 0;
     fan.limitADC = FAN_MAX_ADC; //speed regulator
@@ -297,7 +303,7 @@ uint8_t fanSpeedStartChange(uint8_t cmd, uint16_t value)
 
 uint8_t fanSpeedStopChange(uint8_t cmd, uint16_t value)
 {
-    fan.state = STATE_OFF;
+    fan.state = STATE_NORMAL;
     return 0;
 }
 

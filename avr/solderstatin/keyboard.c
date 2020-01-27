@@ -19,26 +19,47 @@
 
 #include "console.h"
 
+//Повторить попытку записи в eeprom
+void saveRepeat(void)
+{
+    if (!settingSave()) {
+        SetTimerTask(saveRepeat, 10);//TODO:тут можно включить гаранитрование питания
+    }
+}
+
+void devSaveSettingAndNormal(device_t *dev)
+{
+    if (dev->state == STATE_SET) {
+        dev->need = dev->setSelect;
+        dev->setting->value = dev->need;
+        if (!settingSave()) {
+            console_print("k w strt\r");
+            SetTimerTask(saveRepeat, 10);//TODO:тут можно включить гаранитрование питания
+        }
+    }
+    if (dev->state != STATE_NO_DEVICE) {//Запрещено изменять если устройство не подключено
+        dev->state = STATE_NORMAL;
+    }
+}
+
+inline void deviceOff(device_t *dev)
+{
+    if (dev->on) {
+        dev->on = false;
+        devSaveSettingAndNormal(dev);
+        dev->delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
+        console_print("dev of\r");
+    }
+}
+
 void solder_Off(void)
 {
-    if (solder.state != STATE_OFF) {
-        if (solder.state != STATE_NO_DEVICE) {
-            solder.state = STATE_OFF;
-        }
-        solder.delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
-        console_print("sol of\r");
-    }
+    deviceOff(&solder);
 }
 
 void fan_heat_Off(void)
 {
-    if (fan_heat.state != STATE_OFF) {
-        if (fan_heat.state != STATE_NO_DEVICE) {
-            fan_heat.state = STATE_OFF;
-        }
-        fan_heat.delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
-        console_print("fan of\r");
-    }
+    deviceOff(&fan_heat);
 }
 
 #if defined(KEY_MODULE_SCAN)
@@ -56,28 +77,13 @@ ISR(FAN_BUTTON_INT)
 }
 #endif
 
-//Повторить попытку записи в eeprom
-void saveRepeat(void)
-{
-    if (!settingSave()) {
-        SetTimerTask(saveRepeat, 10);//TODO:тут можно включить гаранитрование питания
-    }
-}
 //Возврат из режима установки по прошествеии времени periodSettingS
 inline void settingMode(device_t *device)
 {
     if (device->periodSettingS) {
         device->periodSettingS--;
         if (!device->periodSettingS) {
-            if (device->state == STATE_SET) {
-                device->need = device->setSelect;
-                device->state = STATE_ON;
-                device->setting->value = device->need;
-                if (!settingSave()) {
-                    console_print("k w strt\r");
-                    SetTimerTask(saveRepeat, 10);//TODO:тут можно включить гаранитрование питания
-                }
-            }
+            devSaveSettingAndNormal(device);
         }
     }
 }
@@ -85,7 +91,6 @@ inline void settingMode(device_t *device)
 void keySettingModeOff(void)
 {
     settingMode(&solder);
-    settingMode(&fan);
     settingMode(&fan_heat);
     SetTimerTask(keySettingModeOff, PERIOD_1S);
 }
@@ -100,7 +105,6 @@ inline void repeatMode(device_t *device)
 void keyboardRepeat(void)
 {
     repeatMode(&solder);
-    repeatMode(&fan);
     repeatMode(&fan_heat);
     SetTimerTask(keyboardRepeat, KEY_PERIOD_REPEAT_MS);
 }
@@ -111,8 +115,9 @@ inline void keyProcess(device_t *device, u08 onOff, u08 plus, u08 minus)
         device->delayOffToOn = onOff?KEY_DELAY_ONOFF_TICK:(device->delayOffToOn-1);//Если кнопка еще нажата, то увеличиваем интервал
     }
     if (onOff) {
-        if ((device->state == STATE_OFF) && (!device->delayOffToOn)) {
-            device->state = STATE_ON;
+        if ((!device->on) && (!device->delayOffToOn) && (device->state != STATE_NO_DEVICE)) {//не подключенное усторйство нелья включить
+            device->on = true;
+            devSaveSettingAndNormal(device);
             device->delayOffToOn = KEY_DELAY_ONOFF_TICK;
             if (device == &solder) {
                 console_print("sol on\r");
@@ -124,7 +129,7 @@ inline void keyProcess(device_t *device, u08 onOff, u08 plus, u08 minus)
     } else {
         if (plus || minus) {
             device->periodSettingS = SETTING_MODE_PERIOD_S;
-            if (device->state == STATE_ON) {
+            if (device->state == STATE_NORMAL) { //Первое нажатие изменения температры, входим в режим
                 device->setSelect = device->need;
                 device->state = STATE_SET;
                 device->periodRepeatMs = KEY_DELAY_REPEAT_TICK;

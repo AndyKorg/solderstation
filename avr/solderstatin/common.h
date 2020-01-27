@@ -9,6 +9,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <stdbool.h>
 #include "avrlibdefs.h"
 #include "avrlibtypes.h"
 
@@ -20,15 +21,14 @@
 #define PinInputMode(port, pin)			do {*DDR(&port) &= ~(1<<pin); port |= (1<<pin);} while (0)
 
 typedef enum {
-    STATE_OFF = 0,								//устройство выключено
-    STATE_ON,									//включено
-    STATE_SET,									//включено, производится выбор режима.
-    STATE_FAN_PREPARE_OFF,						//fan остужает спираль перед выключением
-    STATE_NO_DEVICE,							//устройство не подключено
+    STATE_NORMAL = 0,							//Никаких режимов не выбрано, выводится текущая температура
+    STATE_SET,									//производится выбор режима, выводится выбираемое значение
+    STATE_FAN_PREPARE_OFF,						//Только для fan, остужается спираль перед выключением
+    STATE_NO_DEVICE,							//устройство не подключено, выводится текущая температура, переход в другие режимы запрещен
 } eState;
 
 //Proportional kofficent
-#define K_P     0.00 //max 1.265625
+#define K_P     1.00 //max 1.265625
 //Integral kofficent
 #define K_I     0.00
 //Differential coefficient
@@ -71,11 +71,12 @@ typedef struct {
     u16	current;								//Текущее измеренное (или вычисленное) значение
     u16 setSelect;								//Значение в режиме STATE_SET, переписывается в need после перехода в режим STATE_ON
     u16 maxValue;								//Максимально возможное значение набираемое оператором
-    eState state;
+    eState state;								//Режим отображения, набора значения или какой-то специальный
+    bool on;									//Устройство включено
     //keyboard
     u16 periodRepeatMs;							//счетчик автоповтора нажатия.
     u08 periodSettingS;							//счетчик периода установки
-    u08 delayOffToOn;								//Защита от дребезга при включении
+    u08 delayOffToOn;							//Защита от дребезга при включении
     u16	limitADC;								//Максимальное значение выключающее регулирование
     settind_dev_t *setting;						//настройки для устройства
 } device_t;

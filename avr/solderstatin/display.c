@@ -35,14 +35,15 @@ typedef uint8_t (*strOut)(dispString_t *value);
 static strOut stringOut;//Функция формирования следующей строки
 static uint8_t fan_heat_tempr_end_x = 0; //координата x окончания вывода строки температуры фена
 
-inline uint8_t print_state(dispString_t *value, const eState state, bool flash_flag)
+//Вывод статуса устройства.
+inline uint8_t print_state(dispString_t *value, const device_t *dev, bool flash_flag)
 {
-    if (state == STATE_NO_DEVICE) {
+    if (dev->state == STATE_NO_DEVICE) {
         return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", " ---  ");
-    } else if(state == STATE_OFF) {
+    } else if(!dev->on) {
         return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", " OFF");
     }
-    return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((!flash_flag) || flash)?" ON  ":"      ");
+    return (uint8_t) snprintf(value->str, DISPLAY_MAX_BUF, "%s", ((!flash_flag) || flash)?" ON  ":"      ");//Включено и возможно идет подготовка выключению
 }
 
 
@@ -56,18 +57,20 @@ void HideNeedTemperFan()
     forceShowNeedFan = false;
 }
 
-void SetForceFlagTempr(device_t *dev, eState *prev, bool *flag, TPTR hideFunc)
+//Определить режим показа температуры - текущая или целевая.
+//Если переход из выключенного состояния во включенное, то показать целевую температуру
+void SetForceFlagTempr(device_t *dev, bool *on, bool *flag, TPTR hideFunc)
 {
-    if ((dev->state == STATE_ON) && ((*prev) != STATE_ON)) {
+    if ((dev->on) && !(*on)) {
         *flag = true;
         SetTimerTask(hideFunc, SHOW_NEED_PERIOD_S*PERIOD_1S);
     }
-    if (dev->state != STATE_ON) {  	//Спрятать целевую температутру если вышли из режима включения
+    if ((!dev->on) || (dev->state == STATE_SET)) {  	//Спрятать целевую температутру если вышли из режима включения или вошли в режим установки температуры
         *flag = false;
     }
-    *prev = dev->state;
+    *on = dev->on;
 }
-
+//Выводить текущую температуру или выбираемую с миганием в зависимости от режима
 inline uint8_t itoaFlash(device_t dev, char *buf, bool forceShowNeed)
 {
     if ((dev.state == STATE_SET) && (flash)) {
@@ -87,14 +90,14 @@ uint8_t fan_value(dispString_t *value)
     value->y = DISPLAY_Y_MAX - Font8.Height-2;//отмерим от края экрана вверх на высоту шрифта
     value->color = COLORED_SHOW;
     value->font = &Font8;
-    if (fan.state != STATE_ON) {
+    if (!fan.on) {//вентилятор выключен
         prev = 0;
         return snprintf(value->str, DISPLAY_MAX_BUF, " ---   ");
     }
     if ((fan_heat_tempr_end_x) && (prev != fan.current)) {
         prev = fan.current;
         uint8_t tmp = fan.current/(fan.limitADC/100);
-        return snprintf(value->str, DISPLAY_MAX_BUF, " %03d%%  ", tmp>100?100:tmp);
+        return snprintf(value->str, DISPLAY_MAX_BUF, " %03d%%    ", tmp>100?100:tmp);
     }
     return 0;//Не выводить строку т.к. координаты неизвестны
 }
@@ -107,18 +110,18 @@ uint8_t fan_headState(dispString_t *value)
     value->color = COLORED_SHOW;
     value->font = &FontSmall;
     stringOut = fan_value;
-    return print_state(value, fan_heat.state, ((fan_heat.state == STATE_ON) && (FanInStand())) );
+    return print_state(value, &fan_heat, FanInStand() );
 }
 
 uint8_t fan_headTempr(dispString_t *value)
 {
-    static eState prev = STATE_OFF;
+    static bool prevOn = false;
     value->x = 0;//Начать от переднего края экрана
     value->y = enterY(0, 0, &FontSuperBigDigit)+4;//следующая строка
     value->color = COLORED_SHOW;
     value->font = &FontSuperBigDigit;
     stringOut = fan_headState;
-    SetForceFlagTempr(&fan_heat, &prev, &forceShowNeedFan, HideNeedTemperFan);
+    SetForceFlagTempr(&fan_heat, &prevOn, &forceShowNeedFan, HideNeedTemperFan);
     return itoaFlash(fan_heat, value->str, forceShowNeedFan);
 }
 
@@ -129,18 +132,18 @@ uint8_t solderState(dispString_t *value)
     value->color = COLORED_SHOW;
     value->font = &FontSmall;
     stringOut = fan_headTempr;
-    return print_state(value, solder.state, false);
+    return print_state(value, &solder, false);
 }
 
 uint8_t solderTempr(dispString_t *value)
 {
-    static eState prev = STATE_OFF;
+    static bool prevOn = false;
     value->x = 0;
     value->y = 0;
     value->color = COLORED_SHOW;
     value->font = &FontSuperBigDigit;
     stringOut = solderState;
-    SetForceFlagTempr(&solder, &prev, &forceShowNeedSolder, HideNeedTemperSolder);
+    SetForceFlagTempr(&solder, &prevOn, &forceShowNeedSolder, HideNeedTemperSolder);
     return itoaFlash(solder, value->str, forceShowNeedSolder);
 }
 
