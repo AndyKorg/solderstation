@@ -174,6 +174,20 @@ void keyboard(void)
     SetTimerTask(keyboard, KEY_SCAN_PERIOD_MS);
 }
 
+//Использовласо для отладки
+void timerControl()
+{
+    static uint16_t count = 0;
+    if (fan_heat.on) {
+        count++;
+        if (count == 180) {
+            fan_heat_Off();
+        }
+    } else {
+        count = 0;
+    }
+    SetTimerTask(timerControl, 1000);
+}
 
 void keyboard_init(void)
 {
@@ -205,8 +219,10 @@ void keyboard_init(void)
     stled316_init(config);
 #endif
 
-    SetTimerTask(keyboard, KEY_SCAN_PERIOD_MS);			//Сканирование клавиатуры
-    SetTimerTask(keySettingModeOff, PERIOD_1S);			//Снятие режима установки
-    SetTimerTask(keyboardRepeat, KEY_PERIOD_REPEAT_MS);	//Повторять код клавиши пока нажата
+    SetTask(keyboard);			//Сканирование клавиатуры
+    SetTask(keySettingModeOff);			//Снятие режима установки
+    SetTask(keyboardRepeat);	//Повторять код клавиши пока нажата
+
+    //SetTask(timerControl);
 
 }

@@ -160,7 +160,7 @@ void fanControlPID(void)
         if (pid<0) pid = 0;
         FAN_HEAT_PWM_OCR = (uint8_t) pid;
         char tmp[UART_BUF_SIZE];
-        snprintf(tmp, UART_BUF_SIZE, "c=%d p=%d kp=%d\r", fan_heat.current, pid, fan_head_PID.P_Factor);
+        snprintf(tmp, UART_BUF_SIZE, "%d\r", fan_heat.current);
         console_print(tmp);
         if (fan_heat.current > fan_heat.limitADC) {
             FanHeatOff();
@@ -174,6 +174,8 @@ void fanControlPID(void)
                 prevFan = speedFan;
             }
         }
+    } else {
+        prevFan = 0;//сбросить скорость что бы при пуске правильно настроить
     }
     if ((fan.setting->value < fan.limitADC) && (fan.limitADC <= 1024)) {//Ќовый максимальный предел ADC
         fan.setting->value = fan.limitADC;
@@ -202,7 +204,7 @@ void solderControl(void)
             SolderOn();
         }
     }
-    SetTimerTask(solderControl, FAN_PERIOD_TICK);
+    SetTimerTask(solderControl, SOLDER_PERIOD_TICK);
 }
 
 void solder_init(void)
@@ -216,9 +218,9 @@ void solder_init(void)
     solder.current = 0;
     solder.setting = &setting.set.solder;
     //default
-    solder.setting->D_Factor = K_D;
-    solder.setting->I_Factor = K_I;
-    solder.setting->P_Factor = K_P;
+    solder.setting->D_Factor = K_D_SOLDER;
+    solder.setting->I_Factor = K_I_SOLDER;
+    solder.setting->P_Factor = K_P_SOLDER;
     solder.setting->value = 0;
 }
 
@@ -237,9 +239,9 @@ void fan_init(void)
     fan_heat.limitADC = FAN_HEAT_MAX_ADC;
     fan_heat.setting = &setting.set.fan_heat;
     //default
-    fan_heat.setting->D_Factor = K_D;
-    fan_heat.setting->I_Factor = K_I;
-    fan_heat.setting->P_Factor = K_P;
+    fan_heat.setting->D_Factor = K_D_FAN_HEAT;
+    fan_heat.setting->I_Factor = K_I_FAN_HEAT;
+    fan_heat.setting->P_Factor = K_P_FAN_HEAT;
     fan_heat.setting->value = 0;
     fan.on = false;
     fan.state = STATE_NORMAL;
@@ -268,6 +270,7 @@ uint8_t pidChange(uint8_t cmd, uint16_t value)
 {
     bool change = false;
     struct PID_DATA *pid = (cmd & K_DEVICE_MASK) == K_PID_SOLDER ? &solderPID : &fan_head_PID;
+    device_t *dev = (cmd & K_DEVICE_MASK) == K_PID_SOLDER ? &solder : &fan_heat;
     switch (cmd & K_CHANGE_MASK) {
     case K_P_CHANGE:
         pid_Init((uint8_t)value, pid->I_Factor, pid->D_Factor, pid);
@@ -285,6 +288,9 @@ uint8_t pidChange(uint8_t cmd, uint16_t value)
         break;
     }
     if (change) {
+        dev->setting->P_Factor = pid->P_Factor;
+        dev->setting->I_Factor = pid->I_Factor;
+        dev->setting->D_Factor = pid->D_Factor;
         settingSave();
         pid_Reset_Integrator(pid);
         char tmp[UART_BUF_SIZE];

@@ -27,26 +27,29 @@ typedef enum {
     STATE_NO_DEVICE,							//устройство не подключено, выводитс€ текуща€ температура, переход в другие режимы запрещен
 } eState;
 
-//Proportional kofficent
-#define K_P     1.00 //max 1.265625
-//Integral kofficent
-#define K_I     0.00
-//Differential coefficient
-#define K_D     0.00
+//Fan heat default
+#define K_P_FAN_HEAT    0x55
+#define K_I_FAN_HEAT    5
+#define K_D_FAN_HEAT    5
+
+//solder default
+#define K_P_SOLDER		0xa1
+#define K_I_SOLDER		0x10
+#define K_D_SOLDER		0x0
 
 // оманды консоли
 //Change PID koefficent
 #define K_CHANGE_MASK			0x0f
 #define K_DEVICE_MASK			0xf0
+#define K_PID_FAN_HEAT			(K_DEVICE_MASK & 0xc0)	//Fan heat command PID
+#define K_PID_SOLDER			(K_DEVICE_MASK & 0xd0)	//Solder command PID
 #define K_P_CHANGE				(K_CHANGE_MASK & 1)
 #define K_I_CHANGE				(K_CHANGE_MASK & 2)
 #define K_D_CHANGE				(K_CHANGE_MASK & 3)
-#define K_PID_SOLDER			(K_DEVICE_MASK & 0xd0)	//Solder command PID
-#define K_PID_FAN_HEAT			(K_DEVICE_MASK & 0xc0)	//Fan heat command PID
 //Change fan speed
 #define FAN_SPEED_START_CHANGE	0xa0
 #define FAN_SPEED_STOP_CHANGE	0xa1
-//reserSystem
+//resetSystem
 #define RESET_CMD				0x11
 #define SAVE_CMD				0x12
 #define LOAD_CMD				0x13

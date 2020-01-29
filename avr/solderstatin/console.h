@@ -3,7 +3,7 @@
  *
  * Created: 04.11.2019 17:36:20
  *  Author: Administrator
- */ 
+ */
 
 
 #ifndef CONSOLE_H_
@@ -12,7 +12,7 @@
 
 #define	UART_BUF_SIZE	64
 
-typedef uint8_t (*console_cmd)(uint8_t cmd, uint16_t value);
+typedef uint8_t (*console_cmd)(uint8_t cmd, uint16_t value);//параметр пока только 8-bit
 
 void console_init(void);
 void console_print(char *str);
