@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "solder_fan.h"
 #include "setting_save.h"
+#include "buzzer.h"
 
 #include "avrlibdefs.h"
 
@@ -49,7 +50,7 @@ uint8_t load_cmd(uint8_t cmd, uint16_t value)
 
 int main(void)
 {
-    //wdt_enable(WDTO_1S);
+    wdt_enable(WDTO_1S);
     adc_preset();//Сразу надо настроить AREF, что бы избежать длительного шунтирования внутреннего AREF
     MCUCSR |= (1<<JTD);//Double!
     MCUCSR |= (1<<JTD);
@@ -65,6 +66,7 @@ int main(void)
 
     device_init();
     display_init();
+    buzzerInit();
     keyboard_init();
 
     console_print("start\r");

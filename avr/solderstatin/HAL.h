@@ -32,7 +32,7 @@
 #define PowerOff()				do {POWER_OFF_OUT &= ~(1<<POWER_OFF_PIN);} while (0)
 
 
-#define NO_DEVICE_ADC			894		//Значение при превышении которого считается что устройство не подключено
+#define NO_DEVICE_ADC			890		//Значение при превышении которого считается что устройство не подключено
 #define NO_DEVICE_MS			20		//Период контроля
 #define NO_DEVICE_PERIOD_S		3		//Если в течении этого времении знаение превышает NO_DEVICE_ADC, то устройство переводится в статус не подключено
 #define DEVICE_CONNECT_S		3		//Если в течении этого времении знаение не превышает NO_DEVICE_ADC, и предыдущий статус был NO_DEVICE_ADC, устройство считатеся подключеным, но в статусе off
@@ -42,6 +42,7 @@
 #define SOLDER_PWM_PORT			PORTD
 #define SOLDER_PWM_PIN			PORTD5
 #define SOLDER_MAX_ADC			500		//!DEBUG!
+#define SOLDER_KOEF_DISP		100		//Порпавочный коэффицент на который умножается значение перед выводом на дисплей, подбирается при настройке
 
 //#define SolderOn()				do {SOLDER_PWM_PORT |= (1<<SOLDER_PWM_PIN);} while (0)
 
@@ -63,6 +64,7 @@
 #define FAN_PWM_PIN				PORTB3
 #define FAN_HEAT_MAX_ADC		600	//over 450 C//!DEBUG!
 #define FAN_MAX_ADC				960
+#define FAN_HEAT_KOEF_DISP		10	//Порпавочный коэффицент на который умножается значение перед выводом на дисплей, подбирается при настройке
 
 #define FAN_PWM_OCR				OCR0
 #define FAN_PWM_OCR_INIT		((1<<COM01) | (0<<COM00))								//"прямой" pwm - чем больше число в OCR тем шире имульс
@@ -181,6 +183,13 @@
 #define SOLDER_BUTTON_INT		INT2_vect
 #define SolderButInteruptOn()	do {GICR &= ~(1<<INT2); MCUCSR |= (1<<ISC2); GICR |= (1<<INT2);} while (0) //1->0
 #define SolderButInteruptOff()	do {GICR &= ~(1<<INT2);} while (0) //off
+
+/************************************************************************/
+/*                        BUZZER for STLED316 mode                      */
+/************************************************************************/
+#define BUZZER_PORT				PORTD
+#define BUZZER_PIN				PORTD6
+#define BUZZER_FREQUENCY_HZ		500
 
 /************************************************************************/
 /*                        CONSOLE UART                                  */

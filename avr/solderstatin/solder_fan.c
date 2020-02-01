@@ -16,6 +16,7 @@
 #include "console.h"
 #include "power.h"
 #include "setting_save.h"
+#include "buzzer.h"
 
 #if (SOLDER_MAX_ADC >= NO_DEVICE_ADC)
 #error "SOLER_MAX_ADC >= NO_DEVICE_ADC! Check them!"
@@ -164,6 +165,9 @@ void fanControlPID(void)
         console_print(tmp);
         if (fan_heat.current > fan_heat.limitADC) {
             FanHeatOff();
+            if (fan_heat.on) {
+                buzzerShow(SOUND_FLASH_3);
+            }
             fan_heat.on = false;//Alarm!!
         } else {
             FanHeatOn();
@@ -194,11 +198,14 @@ void solderControl(void)
         if (pid <0 ) pid = 0;
         if (pid > 0xff) pid = 0xff;//8 bit
         SOLDER_PWM_OCR = pid;
-        /*		char tmp[UART_BUF_SIZE];
-        snprintf(tmp, UART_BUF_SIZE, "a=%d p=%d kp=%d\r", solder.current, pid, solderPID.P_Factor);
-        console_print(tmp);*/
+        char tmp[UART_BUF_SIZE];
+        snprintf(tmp, UART_BUF_SIZE, "%d\r", solder.current);
+        console_print(tmp);
         if (solder.current > solder.limitADC) {
             SolderOff();
+            if (solder.on) {
+                buzzerShow(SOUND_FLASH_3);//Alarm
+            }
             solder.on = false;
         } else {
             SolderOn();
@@ -216,6 +223,7 @@ void solder_init(void)
     solder.need = 0;
     solder.limitADC = SOLDER_MAX_ADC;
     solder.current = 0;
+    solder.disp_add = SOLDER_KOEF_DISP;
     solder.setting = &setting.set.solder;
     //default
     solder.setting->D_Factor = K_D_SOLDER;
@@ -238,6 +246,7 @@ void fan_init(void)
     fan_heat.need = 0;
     fan_heat.limitADC = FAN_HEAT_MAX_ADC;
     fan_heat.setting = &setting.set.fan_heat;
+    fan_heat.disp_add = FAN_HEAT_KOEF_DISP;
     //default
     fan_heat.setting->D_Factor = K_D_FAN_HEAT;
     fan_heat.setting->I_Factor = K_I_FAN_HEAT;
@@ -300,6 +309,29 @@ uint8_t pidChange(uint8_t cmd, uint16_t value)
     return 0;
 }
 
+uint8_t readPID(uint8_t cmd, uint16_t value)
+{
+    char tmp[UART_BUF_SIZE];
+    if (value == K_READ_PRM) {
+        snprintf(tmp, UART_BUF_SIZE, "SP %d\r", solderPID.P_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "SI %d\r", solderPID.I_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "SD %d\r", solderPID.D_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "FP %d\r", fan_head_PID.P_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "FI %d\r", fan_head_PID.I_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "FD %d\r", fan_head_PID.D_Factor);
+        console_print(tmp);
+        snprintf(tmp, UART_BUF_SIZE, "scale %d\r", SCALING_FACTOR);
+        console_print(tmp);
+    }
+    return 0;
+}
+
+#ifdef CONSLOE_FAN_SPEED
 uint8_t fanSpeedStartChange(uint8_t cmd, uint16_t value)
 {
     fan.state = STATE_SET;
@@ -312,6 +344,7 @@ uint8_t fanSpeedStopChange(uint8_t cmd, uint16_t value)
     fan.state = STATE_NORMAL;
     return 0;
 }
+#endif
 
 void device_init()
 {
@@ -340,7 +373,11 @@ void device_init()
     console_cb(K_PID_FAN_HEAT+K_P_CHANGE, pidChange);
     console_cb(K_PID_FAN_HEAT+K_I_CHANGE, pidChange);
     console_cb(K_PID_FAN_HEAT+K_D_CHANGE, pidChange);
+    //read pid koefficent
+    console_cb(K_READ_CMD, readPID);
+#ifdef CONSLOE_FAN_SPEED
     //fan speed command
     console_cb(FAN_SPEED_START_CHANGE, fanSpeedStartChange);
     console_cb(FAN_SPEED_STOP_CHANGE, fanSpeedStopChange);
+#endif
 }

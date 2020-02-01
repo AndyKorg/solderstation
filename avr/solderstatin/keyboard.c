@@ -14,6 +14,7 @@
 #include "solder_fan.h"
 #if defined(KEY_MODULE_STLED)
 #include "stled316.h"
+#include "buzzer.h"
 #endif
 #include "setting_save.h"
 
@@ -49,6 +50,7 @@ inline void deviceOff(device_t *dev)
         devSaveSettingAndNormal(dev);
         dev->delayOffToOn = KEY_DELAY_ONOFF_TICK;//включить можно только через этот период
         console_print("dev of\r");
+        buzzerShow(SOUND_FLASH_3);
     }
 }
 
@@ -84,6 +86,7 @@ inline void settingMode(device_t *device)
         device->periodSettingS--;
         if (!device->periodSettingS) {
             devSaveSettingAndNormal(device);
+            buzzerShow(SOUND_SHORT);
         }
     }
 }
@@ -125,9 +128,11 @@ inline void keyProcess(device_t *device, u08 onOff, u08 plus, u08 minus)
             if (device == &fan_heat) {
                 console_print("fan on\r");
             }
+            buzzerShow(SOUND_FLASH_3);
         }
     } else {
         if (plus || minus) {
+            buzzerShow(SOUND_SHORT);
             device->periodSettingS = SETTING_MODE_PERIOD_S;
             if (device->state == STATE_NORMAL) { //Первое нажатие изменения температры, входим в режим
                 device->setSelect = device->need;

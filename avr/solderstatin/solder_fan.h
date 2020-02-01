@@ -7,10 +7,10 @@
 #ifndef SOLDER_FAN_H_
 #define SOLDER_FAN_H_
 
-#define SOLDER_MAX						800		//максимальная температура паяльника в условных еденицах
+#define SOLDER_MAX						300		//максимальная температура паяльника в условных еденицах
 #define SOLDER_PERIOD_TICK				500		//Период управления паяльником ms
 
-#define FAN_HEAT_MAX					450		//максимальная температура фена в градусах
+#define FAN_HEAT_MAX					450		//максимальная температура фена условных еденицах
 #define FAN_PERIOD_TICK					250		//Период управления феном
 #define FAN_PID_PERIOD_TICK				500		//Период управления ПИД фена
 #define FAN_HEAT_TEMPR_STOP_MIN			20		//минимальная температура фена в условных еденицах после которой вентилятор выключается

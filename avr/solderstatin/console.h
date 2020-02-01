@@ -10,7 +10,7 @@
 #define CONSOLE_H_
 #include <stdint.h>
 
-#define	UART_BUF_SIZE	64
+#define	UART_BUF_SIZE	128
 
 typedef uint8_t (*console_cmd)(uint8_t cmd, uint16_t value);//параметр пока только 8-bit
 

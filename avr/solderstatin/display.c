@@ -20,6 +20,7 @@
 
 bool flash = false;
 bool forceShowNeedSolder = false, forceShowNeedFan = false;		//выводить значения целевой температуры
+bool settingShow = false;//режим вывода установок
 
 //Выводимая строка
 typedef struct {
@@ -76,15 +77,25 @@ inline uint8_t itoaFlash(device_t dev, char *buf, bool forceShowNeed)
     if ((dev.state == STATE_SET) && (flash)) {
         return (uint8_t) snprintf(buf, DISPLAY_MAX_BUF, "    ");
     }
-    return (uint8_t) snprintf(buf, DISPLAY_MAX_BUF, "%04d", forceShowNeed?dev.need:((dev.state == STATE_SET)?dev.setSelect:dev.current));
+    uint16_t tmp = forceShowNeed?dev.need:((dev.state == STATE_SET)?dev.setSelect:dev.current);//Показать уставку или выбор или текущее значение
+    return (uint8_t) snprintf(buf, DISPLAY_MAX_BUF, "%04d", tmp?tmp+dev.disp_add:tmp);//к нулевой температуре не добавлять коэфиицент
 }
 
 uint8_t solderTempr(dispString_t *value);
 
+uint8_t showCoff(dispString_t *value)
+{
+    //TODO: доделать
+    //clear_screen();
+    return 0;
+}
 //Скорость фена и статус геркона
 uint8_t fan_value(dispString_t *value)
 {
     static u16 prev = 0;
+    if (settingShow) {	//Режим вывода установок, переключаемся на ту ветку
+        stringOut = showCoff;
+    }
     stringOut = solderTempr;
     value->x = fan_heat_tempr_end_x+3;
     value->y = DISPLAY_Y_MAX - Font8.Height-2;//отмерим от края экрана вверх на высоту шрифта
@@ -176,9 +187,17 @@ void flashSwitch(void)
     SetTimerTask(flashSwitch, FLASH_PERIOD_MS);
 }
 
+//показать установки. Работает только если все устройства в статусе off
+void displaySetting(void)
+{
+    if ((!solder.on) && (!fan_heat.on) && (!fan.on) && (!settingShow)) {
+        settingShow = true;
+    }
+}
+
 void display_init(void)
 {
     stringOut = solderTempr;	//Рисуем температуру паяльника
     wg12864_init(ShowString);	//Инициализация ЖКИ
-    SetTimerTask(flashSwitch, FLASH_PERIOD_MS);//флаг мигания включить
+    SetTask(flashSwitch);		//флаг мигания включить
 }

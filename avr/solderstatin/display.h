@@ -11,5 +11,6 @@
 #define SHOW_NEED_PERIOD_S				3		//ѕериод в течение которого показываетс€ целева€ температура после переключени€ статус ON
 
 void display_init(void);
+void displaySetting(void);		//показать установки. –аботает только если все устройства в статусе off
 
 #endif /* DISPLAY_H_ */

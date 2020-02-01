@@ -38,6 +38,9 @@ typedef enum {
 #define K_D_SOLDER		0x0
 
 //Команды консоли
+//read PID koefficent
+#define K_READ_CMD					0x52		//'R'
+#define K_READ_PRM					0x44		//'D'
 //Change PID koefficent
 #define K_CHANGE_MASK			0x0f
 #define K_DEVICE_MASK			0xf0
@@ -47,12 +50,22 @@ typedef enum {
 #define K_I_CHANGE				(K_CHANGE_MASK & 2)
 #define K_D_CHANGE				(K_CHANGE_MASK & 3)
 //Change fan speed
+//#define CONSLOE_FAN_SPEED
+#ifdef CONSLOE_FAN_SPEED
 #define FAN_SPEED_START_CHANGE	0xa0
 #define FAN_SPEED_STOP_CHANGE	0xa1
+#endif
 //resetSystem
 #define RESET_CMD				0x11
 #define SAVE_CMD				0x12
 #define LOAD_CMD				0x13
+
+//Длительность писка если есть пищалка
+typedef	enum {
+    SOUND_SHORT,	//Короткий сигнал
+    SOUND_LONG,		//Длинный сигнал
+    SOUND_FLASH_3,	//3 прерывистых сигнала
+} sound_type_t;
 
 
 //Хранение настроек устройства
@@ -81,11 +94,15 @@ typedef struct {
     u08 periodSettingS;							//счетчик периода установки
     u08 delayOffToOn;							//Защита от дребезга при включении
     u16	limitADC;								//Максимальное значение выключающее регулирование
+    //display
+    uint8_t disp_add;							//Коэффицент прибаляемый к значению при выводе на дисплей
+    //setting
     settind_dev_t *setting;						//настройки для устройства
 } device_t;
 
 device_t solder,
          fan,
          fan_heat;
+
 
 #endif /* COMMON_H_ */
