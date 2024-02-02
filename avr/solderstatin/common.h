@@ -1,8 +1,5 @@
 /*
- * common.h
- *
- * Created: 13.10.2019 11:03:25
- *  Author: Administrator
+ * ќписание общих структур данных и макросов
  */
 
 
@@ -20,6 +17,9 @@
 #define PinOutputMode(port, pin)		do {*DDR(&port) |= (1<<pin); port &= ~(1<<pin);} while (0)
 #define PinInputMode(port, pin)			do {*DDR(&port) &= ~(1<<pin); port |= (1<<pin);} while (0)
 
+/**
+ * ¬озможные статусы устройства
+ */
 typedef enum {
     STATE_NORMAL = 0,							//Ќикаких режимов не выбрано, выводитс€ текуща€ температура
     STATE_SET,									//производитс€ выбор режима, выводитс€ выбираемое значение
@@ -67,6 +67,13 @@ typedef	enum {
     SOUND_FLASH_3,	//3 прерывистых сигнала
 } sound_type_t;
 
+//¬озможные методы регулировани€
+typedef	enum {
+	METHOD_PID,		//PID регулироввание
+	METHOD_SIMPLE,	//ѕростое пропорциональное регулирование
+	METHOD_NOT_APP,
+} method_reg_t;
+
 
 //’ранение настроек устройства
 typedef struct  {
@@ -74,8 +81,10 @@ typedef struct  {
     int16_t P_Factor;
     int16_t I_Factor;
     int16_t D_Factor;
+	method_reg_t Method; //ћетод регулировани€
 } settind_dev_t ;
 
+//список установок устройств, собственно он и сохран€етс€ в EEPROM
 typedef struct {
     settind_dev_t solder;
     settind_dev_t fan_heat;

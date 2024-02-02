@@ -1,5 +1,6 @@
 /*
-* solder_fan.c
+* Контроль фена и паяльника
+* TODO: Разнести по разным файлам
 */
 
 #include <stdio.h>
@@ -103,6 +104,7 @@ void checkDevice(void)
     _checkDev(&fan_heat, &countFanHeat);
     SetTimerTask(checkDevice, NO_DEVICE_MS);
 }
+
 //Start stop fan & fan heat
 void fanControl(void)
 {
@@ -152,14 +154,24 @@ uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint
 //temperature fan heat control
 void fanControlPID(void)
 {
-    int16_t pid = 0;
+    int16_t fan_heat_temper = 0;
     static uint8_t prevFan = 0;
     uint8_t speedFan;
     if (fan_heat.on) {
-        pid = pid_Controller(fan_heat.need, fan_heat.current, &fan_head_PID);
-        if (pid >0xff) pid = 0xff;
-        if (pid<0) pid = 0;
-        FAN_HEAT_PWM_OCR = (uint8_t) pid;
+		switch (fan_heat.setting->Method){
+			case METHOD_SIMPLE:
+				fan_heat_temper = pid_Controller(fan_heat.need, fan_heat.current, &fan_head_PID);
+				break;
+			case METHOD_PID:
+				fan_heat_temper = pid_Controller(fan_heat.need, fan_heat.current, &fan_head_PID);
+				break;
+			case METHOD_NOT_APP:
+				//На всякий случай
+				break;
+		}
+        if (fan_heat_temper >0xff) fan_heat_temper = 0xff;
+        if (fan_heat_temper<0) fan_heat_temper = 0;
+        FAN_HEAT_PWM_OCR = (uint8_t) fan_heat_temper;
         char tmp[UART_BUF_SIZE];
         snprintf(tmp, UART_BUF_SIZE, "%d\r", fan_heat.current);
         console_print(tmp);
@@ -190,14 +202,24 @@ void fanControlPID(void)
 
 void solderControl(void)
 {
-    int16_t pid=0;
+    int16_t solder_tempr=0;
     if ((!solder.on) || (solder.state == STATE_NO_DEVICE)) {
         SolderOff();
     } else if (solder.on) {
-        pid = pid_Controller(solder.need, solder.current, &solderPID);
-        if (pid <0 ) pid = 0;
-        if (pid > 0xff) pid = 0xff;//8 bit
-        SOLDER_PWM_OCR = pid;
+		switch (solder.setting->Method){
+			case METHOD_SIMPLE:
+			solder_tempr = pid_Controller(solder.need, solder.current, &solderPID);
+			break;
+			case METHOD_PID:
+			solder_tempr = pid_Controller(solder.need, solder.current, &solderPID);
+			break;
+			case METHOD_NOT_APP:
+			//На всякий случай
+			break;
+		}
+        if (solder_tempr <0 ) solder_tempr = 0;
+        if (solder_tempr > 0xff) solder_tempr = 0xff;//8 bit
+        SOLDER_PWM_OCR = solder_tempr;
         char tmp[UART_BUF_SIZE];
         snprintf(tmp, UART_BUF_SIZE, "%d\r", solder.current);
         console_print(tmp);
@@ -230,6 +252,7 @@ void solder_init(void)
     solder.setting->I_Factor = K_I_SOLDER;
     solder.setting->P_Factor = K_P_SOLDER;
     solder.setting->value = 0;
+	solder.setting->Method = METHOD_SIMPLE;
 }
 
 void fan_init(void)
@@ -252,6 +275,7 @@ void fan_init(void)
     fan_heat.setting->I_Factor = K_I_FAN_HEAT;
     fan_heat.setting->P_Factor = K_P_FAN_HEAT;
     fan_heat.setting->value = 0;
+	fan_heat.setting->Method = METHOD_SIMPLE;
     fan.on = false;
     fan.state = STATE_NORMAL;
     fan.need = 0;
@@ -259,6 +283,7 @@ void fan_init(void)
     fan.limitADC = FAN_MAX_ADC; //speed regulator
     fan.setting = &setting.set.fan;
     fan.setting->value = fan.limitADC;
+	fan.setting->Method = METHOD_NOT_APP;
 }
 
 void StartADC(void)
