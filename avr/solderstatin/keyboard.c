@@ -1,5 +1,5 @@
 /*
-* keyboard.c
+* Драйвер клавиатуры
 *
 */
 
@@ -196,10 +196,6 @@ void timerControl()
 
 void keyboard_init(void)
 {
-
-    //setting device
-    solder.maxValue = SOLDER_MAX;
-    fan_heat.maxValue = FAN_HEAT_MAX;
     //Повторное выключение-выключение, тиков диспетчера задач
     solder.delayOffToOn = KEY_DELAY_ONOFF_TICK;
     fan_heat.delayOffToOn = KEY_DELAY_ONOFF_TICK;

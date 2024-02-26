@@ -74,6 +74,7 @@ typedef	enum {
 	METHOD_NOT_APP,
 } method_reg_t;
 
+#define TEMPERATURE_HYSTERESSIS	10
 
 //Хранение настроек устройства
 typedef struct  {
